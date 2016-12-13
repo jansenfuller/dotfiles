@@ -1,17 +1,18 @@
 call plug#begin()
 
-Plug 'scrooloose/syntastic'                   " Syntax checking hacks
-Plug 'tpope/vim-fugitive'                     " Git wrapper
-Plug 'tpope/vim-surround'                     " Quoting and Partheneses matching and editing
-Plug 'itchyny/lightline.vim'                  " Lightweight status bar
-Plug 'airblade/vim-gitgutter'                 " Shows git diff in gutter (line number bar on the left)
-Plug 'raimondi/delimitmate'                   " Auto closing of quotes, parns, brackets, etc
-Plug 'valloric/youcompleteme'                 " Autocompletion engine
-Plug 'yggdroot/indentline'                    " Display indentation with vertical lines
-Plug 'slim-template/vim-slim'                 " Slim syntax highlighting
-Plug 'bronson/vim-trailing-whitespace'        " Notifies of whitespace and can fix it too.
-Plug 'ervandew/supertab'                      " Autocomplete with Tab
-Plug 'wakatime/vim-wakatime'                  " Tracks time spent on projects and files
+Plug 'airblade/vim-gitgutter'                   " Shows git diff in gutter (line number bar on the left)
+Plug 'tpope/vim-fugitive'                       " Git wrapper
+Plug 'tpope/vim-surround'                       " Quoting and Partheneses matching and editing
+Plug 'tpope/vim-git'                            " Support plugin for fugitive
+" Plug 'bronson/vim-trailing-whitespace'          " Notifies of whitespace and can fix it too.
+" Plug 'itchyny/lightline.vim'                    " Lightweight status bar
+" Plug 'scrooloose/syntastic'                     " Syntax checking hacks
+Plug 'jiangmiao/auto-pairs'                     " Auto closing of quotes, parns, brackets, etc
+Plug 'valloric/youcompleteme'                   " Autocompletion engine
+Plug 'yggdroot/indentline'                      " Display indentation with vertical lines
+Plug 'slim-template/vim-slim'                   " Slim syntax highlighting
+Plug 'ervandew/supertab'                        " Autocomplete with Tab
+Plug 'wakatime/vim-wakatime'                    " Tracks time spent on projects and files
 Plug 'jansenfuller/crayon'
 
 call plug#end()
@@ -45,95 +46,6 @@ nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
-" Use statusbar instead
-set noshowmode
-
-" Litghtline ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-let g:lightline = {
-      \ 'colorscheme': 'wombat',
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ], ['ctrlpmark'] ],
-      \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
-      \ },
-      \ 'component_function': {
-      \   'fugitive': 'LightlineFugitive',
-      \   'filename': 'LightlineFilename',
-      \   'fileformat': 'LightlineFileformat',
-      \   'filetype': 'LightlineFiletype',
-      \   'fileencoding': 'LightlineFileencoding',
-      \   'mode': 'LightlineMode',
-      \   'ctrlpmark': 'CtrlPMark',
-      \ },
-      \ 'component_expand': {
-      \   'syntastic': 'SyntasticStatuslineFlag',
-      \ },
-      \ 'component_type': {
-      \   'syntastic': 'error',
-      \ },
-      \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
-      \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" }
-      \ }
-
-function! LightlineModified()
-  return &ft =~ 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
-endfunction
-
-function! LightlineReadonly()
-  return &ft !~? 'help' && &readonly ? 'RO' : ''
-endfunction
-
-function! LightlineFilename()
-  let fname = expand('%:t')
-  return fname == 'ControlP' && has_key(g:lightline, 'ctrlp_item') ? g:lightline.ctrlp_item :
-        \ fname == '__Tagbar__' ? g:lightline.fname :
-        \ fname =~ '__Gundo\|NERD_tree' ? '' :
-        \ &ft == 'vimfiler' ? vimfiler#get_status_string() :
-        \ &ft == 'unite' ? unite#get_status_string() :
-        \ &ft == 'vimshell' ? vimshell#get_status_string() :
-        \ ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
-        \ ('' != fname ? fname : '[No Name]') .
-        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
-endfunction
-
-function! LightlineFugitive()
-  try
-    if expand('%:t') !~? 'Tagbar\|Gundo\|NERD' && &ft !~? 'vimfiler' && exists('*fugitive#head')
-      let mark = ''  " edit here for cool mark
-      let branch = fugitive#head()
-      return branch !=# '' ? mark.branch : ''
-    endif
-  catch
-  endtry
-  return ''
-endfunction
-
-function! LightlineFileformat()
-  return winwidth(0) > 70 ? &fileformat : ''
-endfunction
-
-function! LightlineFiletype()
-  return winwidth(0) > 70 ? (&filetype !=# '' ? &filetype : 'no ft') : ''
-endfunction
-
-function! LightlineFileencoding()
-  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
-endfunction
-
-augroup AutoSyntastic
-  autocmd!
-  autocmd BufWritePost *.c,*.cpp call s:syntastic()
-augroup END
-function! s:syntastic()
-  SyntasticCheck
-  call lightline#update()
-endfunction
-
-" |||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||
-
-
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
 
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
