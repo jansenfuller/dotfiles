@@ -1,0 +1,81 @@
+# OS generated files #
+######################
+# macOS
+.DS_Store
+.DS_Store?
+._*
+
+# Windows
+Thumbs.db
+*.lnk
+Desktop.ini
+
+# Generic
+.git
+.log
+*.tmp
+*.bak
+
+# Vim generated #
+#################
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+.netrwhist
+
+# IDE generated #
+#################
+# Visual Studio 201X/Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.vs/
+
+# Sublime Text 2/3
+*.sublime-project
+*.sublime-workspace
+*.cache
+
+# Cloud9 IDE
+.c9
+.c9revisions
+
+# Language specific #
+#####################
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Perl
+.last_cover_stats
+/META.yml
+/META.json
+/MYMETA.*
+*.o
+*.bs
+
+# C/++
+*.d
+*.slo
+*.lo
+*.o
+*.obj
+
+# Haskell
+l-dev
+*.o
+*.hi
+*.chi
+*.chs.h
+*.dyn_o
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
