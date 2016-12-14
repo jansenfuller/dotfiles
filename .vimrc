@@ -4,24 +4,28 @@ Plug 'airblade/vim-gitgutter'                   " Shows git diff in gutter (line
 Plug 'tpope/vim-fugitive'                       " Git wrapper
 Plug 'tpope/vim-surround'                       " Quoting and Partheneses matching and editing
 Plug 'tpope/vim-git'                            " Support plugin for fugitive
+Plug 'vim-airline/vim-airline'                  " Fast status bar
+Plug 'slim-template/vim-slim'                   " Slim syntax highlighting
 " Plug 'bronson/vim-trailing-whitespace'          " Notifies of whitespace and can fix it too.
-" Plug 'itchyny/lightline.vim'                    " Lightweight status bar
 " Plug 'scrooloose/syntastic'                     " Syntax checking hacks
 Plug 'jiangmiao/auto-pairs'                     " Auto closing of quotes, parns, brackets, etc
 Plug 'valloric/youcompleteme'                   " Autocompletion engine
 Plug 'yggdroot/indentline'                      " Display indentation with vertical lines
-Plug 'slim-template/vim-slim'                   " Slim syntax highlighting
 Plug 'ervandew/supertab'                        " Autocomplete with Tab
 Plug 'wakatime/vim-wakatime'                    " Tracks time spent on projects and files
 Plug 'jansenfuller/crayon'
 
 call plug#end()
 
-syntax on
+syntax enable
+filetype plugin indent on
 colorscheme crayon
+
+" Use system clipboard
 if has("clipboard")
     set clipboard=unnamed
 endif
+
 set number                                      " Line numbering
 set relativenumber                              " Adds number to lines based on place in file
 " Shows current line number and relative LNs
@@ -47,12 +51,6 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-let g:syntastic_python_checkers = ['pylint']
-let g:syntastic_python_pylint_args='--ignore=E501,E225'
-let g:syntastic_python_pylint_post_args="--max-line-length=220"
+autocmd BufNewFile,BufRead *.slim set ft=slim   " Enbales vim-slim
 
 set laststatus=2
