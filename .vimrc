@@ -51,6 +51,7 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
-autocmd BufNewFile,BufRead *.slim set ft=slim   " Enbales vim-slim
+autocmd BufNewFile,BufRead *.slim set ft=slim   " Enables vim-slim
+let g:airline_powerline_fonts = 1               " Enables airline fonts
 
 set laststatus=2
