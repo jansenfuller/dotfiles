@@ -11,5 +11,5 @@ if [ -f ~/.aliases ]; then
 	source ~/.aliases;
 fi
 
-alias config='git --git-dir=~/.cfg/ --work-tree=~'
+alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 export PATH

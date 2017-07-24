@@ -60,7 +60,7 @@ HIST_STAMPS="yyyy-mm-dd"
 # Add custom plugins to ~/.oh-my-zsh/custom/plugins/
 # Eg; plugins=(rails git textmate ruby lighthouse)
 # Too many plugins slow down shell startup.
-plugins=(git cp gem git-remote-branch github gitignore gnu-utils gpg-agent npm perl pip pylint python ruby sudo thefuck torrent vim-interaction zsh_reload)
+plugins=(git git-remote-branch github gitignore gnu-utils gpg-agent pip pylint python sudo vim-interaction zsh_reload)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -71,9 +71,9 @@ export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
+  export EDITOR='vi'
 else
-  export EDITOR='mvim'
+  export EDITOR='vim'
 fi
 
 # Compilation flags
@@ -91,4 +91,4 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
