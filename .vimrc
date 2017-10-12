@@ -13,7 +13,7 @@ Plug 'valloric/youcompleteme'                   " Autocompletion engine
 Plug 'yggdroot/indentline'                      " Display indentation with vertical lines
 Plug 'ervandew/supertab'                        " Autocomplete with Tab
 Plug 'wakatime/vim-wakatime'                    " Tracks time spent on projects and files
-Plug 'jansenfuller/crayon'
+Plug 'jansenfuller/crayon'                      " Personal colorscheme
 
 call plug#end()
 

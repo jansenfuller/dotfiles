@@ -92,3 +92,6 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+alias list-aur='sudo pacman -Qqm'
+alias list-recent-installed='cat /var/log/pacman.log | grep -i installed'
+alias list-all-pacages='sudo pacman -Qqt'
