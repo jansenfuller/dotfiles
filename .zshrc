@@ -5,18 +5,7 @@ export PATH=$HOME/bin:/usr/local/bin:$PATH
 export ZSH=~/.oh-my-zsh
 
 # Set name of the theme to load. 
-ZSH_THEME="fino"
-# Interesting themes:
-# arrow
-# terminalparty
-# bureau
-# bira
-# kolo
-# mortalscumbag
-# nanotech
-# nicoulaj
-# pmcgee
-# fino/-time
+ZSH_THEME="j-agnoster"
 
 # Uncomment this line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -60,7 +49,7 @@ HIST_STAMPS="yyyy-mm-dd"
 # Add custom plugins to ~/.oh-my-zsh/custom/plugins/
 # Eg; plugins=(rails git textmate ruby lighthouse)
 # Too many plugins slow down shell startup.
-plugins=(git git-remote-branch github gitignore gnu-utils gpg-agent pip pylint python sudo vim-interaction zsh_reload)
+plugins=(compleat gpg-agent git git-extras perms sudo iterm2)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -80,7 +69,7 @@ fi
 export ARCHFLAGS="-arch x86_64"
 
 # ssh
-export SSH_KEY_PATH="~/.ssh/rsa_id"
+export SSH_KEY_PATH="~/.ssh/id_rsa"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. 
@@ -92,6 +81,5 @@ export SSH_KEY_PATH="~/.ssh/rsa_id"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-alias list-aur='sudo pacman -Qqm'
-alias list-recent-installed='cat /var/log/pacman.log | grep -i installed'
-alias list-all-pacages='sudo pacman -Qqt'
+alias vim='/Applications/MacVim.app/Contents/MacOS/Vim'
+export dev=$HOME/sync/dev
