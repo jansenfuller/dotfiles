@@ -4,10 +4,10 @@ Plug 'airblade/vim-gitgutter'                   " Shows git diff in gutter (line
 Plug 'tpope/vim-fugitive'                       " Git wrapper
 Plug 'tpope/vim-surround'                       " Quoting and Partheneses matching and editing
 Plug 'tpope/vim-git'                            " Support plugin for fugitive
-Plug 'vim-airline/vim-airline'                  " Fast status bar
+Plug 'bling/vim-airline'                        " Fast status bar
 Plug 'slim-template/vim-slim'                   " Slim syntax highlighting
 " Plug 'bronson/vim-trailing-whitespace'          " Notifies of whitespace and can fix it too.
-" Plug 'scrooloose/syntastic'                     " Syntax checking hacks
+Plug 'scrooloose/syntastic'                     " Syntax checking hacks
 Plug 'jiangmiao/auto-pairs'                     " Auto closing of quotes, parns, brackets, etc
 Plug 'valloric/youcompleteme'                   " Autocompletion engine
 Plug 'yggdroot/indentline'                      " Display indentation with vertical lines
@@ -53,5 +53,16 @@ set splitright
 
 autocmd BufNewFile,BufRead *.slim set ft=slim   " Enables vim-slim
 let g:airline_powerline_fonts = 1               " Enables airline fonts
+
+" Allows built-in whitespace fixing
+function! FixWhitespace()
+  if !&binary && &filetype != 'diff'
+    normal mz
+    normal Hmy
+    %s/\s\+$//e
+    normal 'yz<CR>
+    normal `z
+  endif
+endfunction
 
 set laststatus=2
