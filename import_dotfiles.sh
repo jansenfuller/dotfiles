@@ -18,7 +18,10 @@ if [ $? = 0 ]; then
     config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} .config-backup/{}
 fi;
 
-# Installs geometry prompt
+# Installs oh-my-zsh prompt
+sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+# Installing geometry
+cd ~/.oh-my-zsh/custom/themes
 git clone https://github.com/geometry-zsh/geometry
 cd geometry
 git submodule update --init --recursive

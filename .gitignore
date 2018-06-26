@@ -33,6 +33,7 @@ Desktop.ini
 !.vscode/launch.json
 !.vscode/extensions.json
 .vs/
+.vscode
 
 # Sublime Text 2/3
 *.sublime-project
