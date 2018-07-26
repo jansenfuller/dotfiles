@@ -1,52 +1,86 @@
+" Plugin Calls
 call plug#begin()
-
-Plug 'airblade/vim-gitgutter'                   " Shows git diff in gutter (line number bar on the left)
-Plug 'tpope/vim-fugitive'                       " Git wrapper
-Plug 'tpope/vim-surround'                       " Quoting and Partheneses matching and editing
-Plug 'tpope/vim-git'                            " Support plugin for fugitive
-Plug 'itchyny/lightline.vim'                    " Fast status bar
-Plug 'scrooloose/syntastic'                     " Syntax checking hacks
-Plug 'jiangmiao/auto-pairs'                     " Auto closing of quotes, parns, brackets, etc
-Plug 'valloric/youcompleteme'                   " Autocompletion engine
-Plug 'yggdroot/indentline'                      " Display indentation with vertical lines
-Plug 'wakatime/vim-wakatime'                    " Tracks time spent on projects and files
-Plug 'jansenfuller/crayon'                      " Personal colorscheme
-
+  Plug 'scrooloose/syntastic'                     " Syntax checks
+  Plug 'pangloss/vim-javascript'                  " Javascript support
+  Plug 'valloric/youcompleteme'                   " Autocompletion
+  Plug 'itchyny/lightline.vim'                    " Fast status bar
+  Plug 'airblade/vim-gitgutter'                   " Shows git diff in gutter (line number bar on the left)
+  Plug 'tpope/vim-fugitive'                       " Git wrapper
+  Plug 'wakatime/vim-wakatime'                    " Tracks time spent on projects and files
+  Plug 'jansenfuller/crayon'                      " My colorsheme
+  Plug 'yggdroot/indentline'                      " Display indentation with vertical lines
+  Plug 'scrooloose/nerdtree'
 call plug#end()
 
-syntax enable
-filetype plugin indent on
+
+set nocompatible                        " Not vi compatable
+filetype plugin indent on               " Filetype auto-detection
+syntax on                               " Syntax highlighting
 colorscheme crayon
 
-" Use system clipboard
-if has("clipboard")
-    set clipboard=unnamed
-endif
+" General Settings
+set noswapfile                          " They're just annoying. Who likes them?
+set number                              " Line numbers
+set ruler                               " Always show current position
+set lazyredraw                          " Don't redraw while executing macros
+set ttyfast                             " Rendering? I actually don't know what this does
+set laststatus=2                        " Always show the status line
+set history=100                         " Vim command history saved up to 100 commands
+set scrolljump=8                        " Scroll 8 lines at a time at bottom/top
 
-set number                                      " Line numbering
-set relativenumber                              " Adds number to lines based on place in file
-" Shows current line number and relative LNs
-set nohlsearch                                  " Doesn't highlight search matches
-set incsearch                                   " Unless it is the one selected
-set ignorecase                                  " Searching case-insensitive
-set autoindent                                  " Auto intenting
-set tabstop=4                                   " Tab spacing
-set softtabstop=4                               " unify
-set shiftwidth=4                                " Indent and outdent by 4 columns
-set shiftround                                  " Always indent to nearest tabstop
-set expandtab                                   " use spaces instead of tabs
-set lazyredraw                                  " Wait to redraw
-set ttyfast                                     " Somehow improves performance?
-set scrolljump=8                                " Scroll 8 lines at a time at bottom/top
-let html_no_rendering=1                         " Don't render italic, bold, links in HTML
+" Indentation
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set expandtab                           " use spaces instead of tabs.
+set smarttab                            " let's tab key insert 'tab stops', and bksp deletes tabs.
+set shiftround                          " tab / shifting moves to closest tabstop.
+set autoindent                          " Match indents on new lines.
+set smartindent                         " Intellegently dedent / indent new lines based on rules.
 
-" Remap split navigation
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
-set splitbelow
-set splitright
+" Swapping and buffer fixes
+set hidden                              " allow me to have buffers with unsaved changes.
+set autoread                            " when a file has changed on disk, just load it. Don't ask.
+set noswapfile                          " Does what it says, no swapping
+set nobackup                            " Doens't backup stuff I think?
+set nowb                                " No idea what this is
+
+" Make search more sane
+set ignorecase                          " case insensitive search
+set smartcase                           " If there are uppercase letters, become case-sensitive.
+set incsearch                           " live incremental searching
+set showmatch                           " live match highlighting
+set hlsearch                            " highlight matches
+set gdefault                            " use the `g` flag by default.
+
+" bindings for easy split nav
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+set splitbelow                          " Will always vsplit below
+set splitright                          " Will always hsplit right
+
+" Tab bindings
+nnoremap <C-S-Left> :tabprevious<CR>
+nnoremap <C-S-Right> :tabnext<CR>
+nnoremap <silent> <A-Left> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
+nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
+
+" NERDTree binding
+map <C-n> :NERDTreeToggle<CR>
+
+" Ignore complied files
+set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
+set wildignore+=vendor/rails/**
+set wildignore+=vendor/cache/**
+set wildignore+=*.gem
+set wildignore+=log/**
+set wildignore+=tmp/**
+set wildignore+=*.png,*.jpg,*.gif
+
+" Delete trailing white space on save
+autocmd BufWritePre * :%s/\s\+$//e
 
 " Enables and sets lightline
 let g:lightline = {
@@ -66,17 +100,11 @@ let g:lightline = {
     \}
   \}
 
-"let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
-
-" Allows built-in whitespace fixing
-function! FixWhitespace()
-  if !&binary && &filetype != 'diff'
-    normal mz
-    normal Hmy
-    %s/\s\+$//e
-    normal 'yz<CR>
-    normal `z
-  endif
-endfunction
-
-set laststatus=2
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+let g:syntastic_enable_highlighting = 1
+let g:syntastic_error_symbol = '⨉'
+let g:syntastic_warning_symbol = '⚠ '
+let g:syntastic_javascript_checkers = ['eslint']
