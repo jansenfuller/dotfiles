@@ -9,8 +9,6 @@ Plug 'scrooloose/syntastic'                     " Syntax checking hacks
 Plug 'jiangmiao/auto-pairs'                     " Auto closing of quotes, parns, brackets, etc
 Plug 'valloric/youcompleteme'                   " Autocompletion engine
 Plug 'yggdroot/indentline'                      " Display indentation with vertical lines
-Plug 'ervandew/supertab'                        " Autocomplete with Tab
-Plug 'scrooloose/nerdtree'                      " File browser
 Plug 'wakatime/vim-wakatime'                    " Tracks time spent on projects and files
 Plug 'jansenfuller/crayon'                      " Personal colorscheme
 
@@ -52,18 +50,23 @@ set splitright
 
 " Enables and sets lightline
 let g:lightline = {
-      \'colorscheme': 'jellybeans',
-      \'active': {
-      \   'left':[ [ 'mode', 'paste' ],
-      \           [ 'gitbranch', 'readonly', 'filename', 'modified' ]
-      \]
-      \},'component': {
-        \'lineinfo': ' %3l:%-2v'
-      \},
-      \'component_function': {
-        \'gitbranch': 'fugitive#head'
-      \}
+    \'colorscheme': 'jellybeans',
+    \'active': {
+    \   'left':[
+    \           [ 'mode', 'paste', 'ale' ],
+    \           [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
+    \   'right': [
+    \           ['lineinfo'], ['percent'],
+    \           ['fileformat', 'filetype', 'readonly']]
+    \},'component': {
+    \  'lineinfo': ' %3l:%-2v'
+    \},
+    \'component_function': {
+    \ 'gitbranch': 'fugitive#head',
     \}
+  \}
+
+"let g:ale_statusline_format = ['⨉ %d', '⚠ %d', '⬥ ok']
 
 " Allows built-in whitespace fixing
 function! FixWhitespace()
