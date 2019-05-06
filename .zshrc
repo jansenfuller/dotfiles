@@ -1,27 +1,24 @@
 export PATH=$HOME/bin:/usr/local/bin:$PATH
+# ----------------------------------------
+### Added by Zplugin's installer
+source '/Users/jansenfuller/.zplugin/bin/zplugin.zsh'
+autoload -Uz _zplugin
+(( ${+_comps} )) && _comps[zplugin]=_zplugin
+### End of Zplugin's installer chunk
 
-# Path to your oh-my-zsh installation.
-export ZSH=/Users/jansenfuller/.oh-my-zsh
+GEOMETRY_COLOR_DIR=152
+PROMPT_GOEMETRY_COLORIZE_SYMBOL=true
+GEOMETRY_PROMPT_PLUGINS=(exec_time git)
+zplugin light geometry-zsh/geometry
 
-# Set name of the theme to load. Optionally, if you set this to "random"
-ZSH_THEME="geometry/geometry"
-ENABLE_CORRECTION="true"
-COMPLETION_WAITING_DOTS="true"
-DISABLE_UNTRACKED_FILES_DIRTY="true"
-HIST_STAMPS="mm/dd/yyyy"
-
-plugins=(
-  brew,
-  git,
-  history,
-  zsh-autosuggestions
-)
-GEOMETRY_PROMPT_PLUGINS=(exec_time git hydrate)
-GEOMETRY_PLUGIN_HYDRATE_INTERVAL=10
-source $ZSH/oh-my-zsh.sh
+zplugin ice wait'1' atload'_zsh_autosuggest_start'
+zplugin light zsh-users/zsh-autosuggestions
+zplugin ice wait"0" atinit"zpcompinit; zpcdreplay"
+zplugin light zdharma/fast-syntax-highlighting
+zplugin light marzocchi/zsh-notify
+# ---------------------------------------
 
 # User configuration
-
 export MANPATH="/usr/local/man:$MANPATH"
 export LANG=en_US.UTF-8
 
@@ -36,4 +33,3 @@ alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 export PATH="/Applications/CMake.app/Contents/bin":"$PATH"
 export PATH="/usr/local/sbin:$PATH"
 export dev=$HOME/dev
-
