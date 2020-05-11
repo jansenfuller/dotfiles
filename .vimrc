@@ -1,4 +1,5 @@
 call plug#begin('~/.vim/plugged')
+  Plug 'itchyny/lightline.vim'
   Plug 'altercation/vim-colors-solarized'
 	Plug 'airblade/vim-gitgutter'
 call plug#end()
@@ -52,3 +53,18 @@ set wildignore+=*.gem
 set wildignore+=log/**
 set wildignore+=tmp/**
 set wildignore+=*.png,*.jpg,*.gif
+
+" Lightline Config
+let g:lightline = {
+      \ 'colorscheme': 'solarized',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
+      \   'right': [ [ 'lineinfo'],
+      \              [ 'percent' ],
+      \              [ 'fileformat', 'fileencoding', 'filetype' ] ]
+      \ },
+      \ 'component_function': {
+      \   'gitbranch': 'FugitiveHead'
+      \ },
+      \ }
