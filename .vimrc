@@ -8,7 +8,6 @@ set nocompatible                        " Not vi compatable
 filetype plugin indent on               " Filetype auto-detection
 syntax on                               " Syntax highlighting
 set background=dark
-colorscheme solarized
 
 " General Settings
 set noswapfile                          " They're just annoying. Who likes them?

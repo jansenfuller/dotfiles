@@ -1,40 +1,43 @@
-export PATH=$HOME/bin:/usr/local/bin:$PATH
-#-------------------------------------------------------------------------------------------------------------------------
-### Added by Zinit's installer
-if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
-    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f%b"
+export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH
+
+#################################################
+# Antidote Stuff
+
+# This is suggesting you have brew
+
+source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
+
+antidote load
+
+# Set the root name of the plugins files (.txt and .zsh) antidote will use.
+zsh_plugins=~/.zsh_plugins
+
+# Ensure the .zsh_plugins.txt file exists so you can add plugins.
+[[ -f ${zsh_plugins}.txt ]] || touch ${zsh_plugins}.txt
+
+# Lazy-load antidote from its functions directory.
+fpath=(/path/to/antidote/functions $fpath)
+autoload -Uz antidote
+autoload -Uz compinit && compinit
+autoload -Uz promptinit && promptinit
+
+# Generate a new static file whenever .zsh_plugins.txt is updated.
+if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
+  antidote bundle <${zsh_plugins}.txt >|${zsh_plugins}.zsh
 fi
 
-source "$HOME/.zinit/bin/zinit.zsh"
-autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
+# Source your static plugins file.
+source ${zsh_plugins}.zsh
 
-# Load a few important annexes, without Turbo
-# (this is currently required for annexes)
-zinit light-mode for \
-    zinit-zsh/z-a-patch-dl \
-    zinit-zsh/z-a-as-monitor \
-    zinit-zsh/z-a-bin-gem-node
+#################################################
 
+# Geometry
+source .geometry/geometry.zsh
 
+GEOMETRY_RPROMPT+=(geometry_exec_time pwd)      # append exec_time and pwd right prompt
+GEOMETRY_TITLE=(geometry_node)
+GEOMETRY_GIT_TIME_DETAILED=true     # show full time (e.g. `12h 30m 53s`) instead of the coarsest interval (e.g. `12h`)
 
-### End of Zinit's installer chunk
-GEOMETRY_COLOR_DIR=152
-PROMPT_GOEMETRY_COLORIZE_SYMBOL=true
-GEOMETRY_PROMPT_PLUGINS=(exec_time git)
-zinit light geometry-zsh/geometry
-
-zinit ice blockf
-zinit light zsh-users/zsh-completions
-zinit load zdharma/history-search-multi-word
-zinit light zsh-users/zsh-syntax-highlighting
-zinit light zsh-users/zsh-autosuggestions
-zinit light marzocchi/zsh-notify
-#-------------------------------------------------------------------------------------------------------------------------
 
 
 # User configuration
@@ -48,5 +51,5 @@ export ARCHFLAGS="-arch x86_64"
 export SSH_KEY_PATH="~/.ssh/id_rsa"
 
 alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-export PATH="/usr/local/sbin:$PATH"
 export dev=$HOME/dev
+
