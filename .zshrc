@@ -1,5 +1,24 @@
 export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH
 
+# User configuration
+export MANPATH="/usr/local/man:$MANPATH"
+export LANG=en_US.UTF-8
+
+# Compilation flags
+export ARCHFLAGS="-arch x86_64"
+
+# SSH 
+alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+export dev=$HOME/dev
+export SSH_AUTH_SOCK=~/.bitwarden-ssh-agent.sock
+
+# Vim
+alias vim='nvim'
+
+# Brew stuff
+export PATH="/opt/homebrew/opt/curl/bin:$PATH"
+export CPPFLAGS="-I/opt/homebrew/opt/curl/include"
+
 #################################################
 # Antidote Stuff
 
@@ -38,18 +57,22 @@ GEOMETRY_RPROMPT+=(geometry_exec_time pwd)      # append exec_time and pwd right
 GEOMETRY_TITLE=(geometry_node)
 GEOMETRY_GIT_TIME_DETAILED=true     # show full time (e.g. `12h 30m 53s`) instead of the coarsest interval (e.g. `12h`)
 
+#################################################
 
+# NVM
 
-# User configuration
-export MANPATH="/usr/local/man:$MANPATH"
-export LANG=en_US.UTF-8
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
-# Compilation flags
-export ARCHFLAGS="-arch x86_64"
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /opt/homebrew/bin/terraform terraform
 
-# SSH 
-export SSH_KEY_PATH="~/.ssh/id_rsa"
+export PATH="/opt/homebrew/sbin:$PATH"
 
-alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-export dev=$HOME/dev
+#################################################
 
+# KUBERNETES
+KUBE_CONFIG=~/.kube/config
+alias k='kubectl'
+alias dk='kubectl --kubeconfig=/Users/jansenfuller/.kube/config_lab'

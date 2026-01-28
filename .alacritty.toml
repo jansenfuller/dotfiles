@@ -1,0 +1,50 @@
+[general]
+working_directory = "~/dev"
+live_config_reload = true
+ipc_socket = true
+
+[window]
+startup_mode = "Maximized"
+dynamic_title = true
+decorations_theme_variant = "Dark"
+option_as_alt = "OnlyLeft"
+
+[scrolling]
+multiplier = 5
+
+[font]
+normal.family = "JetBrainsMono Nerd Font Mono"
+normal.style = "Regular"
+size = 15
+
+[colors.primary]
+    background = "0x1d1f21"
+    foreground = "0xc5c8c6"
+
+  # Normal colors
+[colors.normal]
+    black =    "0x282a2e"
+    red =      "0xa54242"
+    green =    "0x8c9440"
+    yellow =   "0xde935f"
+    blue =     "0x5f819d"
+    magenta =  "0x85678f"
+    cyan =     "0x5e8d87"
+    white =    "0x707880"
+
+  # Bright colors
+[colors.bright]
+    black =    "0x373b41"
+    red =      "0xcc6666"
+    green =    "0xb5bd68"
+    yellow =   "0xf0c674"
+    blue =     "0x81a2be"
+    magenta =  "0xb294bb"
+    cyan =     "0x8abeb7"
+    white =    "0xc5c8c6"
+
+[selection]
+save_to_clipboard = true
+
+[cursor]
+style = { shape = "Beam", blinking = "On" }

@@ -35,15 +35,6 @@ Desktop.ini
 .vs/
 .vscode
 
-# Sublime Text 2/3
-*.sublime-project
-*.sublime-workspace
-*.cache
-
-# Cloud9 IDE
-.c9
-.c9revisions
-
 # Language specific #
 #####################
 
