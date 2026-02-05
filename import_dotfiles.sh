@@ -18,9 +18,9 @@ if [ $? = 0 ]; then
     config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} .config-backup/{}
 fi;
 
-# Installs Zinit
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
-
+# Installs Antidote
+git clone --depth=1 https://github.com/mattmc3/antidote.git ~/.antidote
+git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
 
 # Resets anything that might have been changed
 config fetch --all

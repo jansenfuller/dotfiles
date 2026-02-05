@@ -1,32 +1,37 @@
-export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH
+# Directories
+PATH=$HOME:/opt/homebrew/bin:/opt/homebrew/opt/curl/bin:/usr/local/bin:/usr/local/sbin:$PATH
+alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+dev=$HOME/dev
 
 # User configuration
-export MANPATH="/usr/local/man:$MANPATH"
-export LANG=en_US.UTF-8
+MANPATH="/usr/local/man:$MANPATH"
+LANG=en_US.UTF-8
+ARCHFLAGS="-arch x86_64"
+CPPFLAGS="-I/opt/homebrew/opt/curl/include"
 
-# Compilation flags
-export ARCHFLAGS="-arch x86_64"
-
-# SSH 
-alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-export dev=$HOME/dev
-export SSH_AUTH_SOCK=~/.bitwarden-ssh-agent.sock
+# SSH
+SSH_AUTH_SOCK=~/.bitwarden-ssh-agent.sock
 
 # Vim
 alias vim='nvim'
 
-# Brew stuff
-export PATH="/opt/homebrew/opt/curl/bin:$PATH"
-export CPPFLAGS="-I/opt/homebrew/opt/curl/include"
+# git
+alias ga='git add'
+alias gc='git commit'
+alias gpl='git pull'
+alias gpu='gpl | git push'
+alias gch='git checkout'
+alias gnb='git checkout -b'
+
+# Kubernetes
+KUBE_CONFIG=~/.kube/config
+alias k='kubectl'
 
 #################################################
 # Antidote Stuff
 
-# This is suggesting you have brew
-
-source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
-
-antidote load
+ANTIDOTE_PATH=~/.antidote
+source $ANTIDOTE_PATH/antidote.zsh
 
 # Set the root name of the plugins files (.txt and .zsh) antidote will use.
 zsh_plugins=~/.zsh_plugins
@@ -37,8 +42,6 @@ zsh_plugins=~/.zsh_plugins
 # Lazy-load antidote from its functions directory.
 fpath=(/path/to/antidote/functions $fpath)
 autoload -Uz antidote
-autoload -Uz compinit && compinit
-autoload -Uz promptinit && promptinit
 
 # Generate a new static file whenever .zsh_plugins.txt is updated.
 if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
@@ -51,9 +54,6 @@ source ${zsh_plugins}.zsh
 #################################################
 
 # Geometry
-source .geometry/geometry.zsh
-
-GEOMETRY_RPROMPT+=(geometry_exec_time pwd)      # append exec_time and pwd right prompt
 GEOMETRY_TITLE=(geometry_node)
 GEOMETRY_GIT_TIME_DETAILED=true     # show full time (e.g. `12h 30m 53s`) instead of the coarsest interval (e.g. `12h`)
 
@@ -61,18 +61,11 @@ GEOMETRY_GIT_TIME_DETAILED=true     # show full time (e.g. `12h 30m 53s`) instea
 
 # NVM
 
-export NVM_DIR="$HOME/.nvm"
+NVM_DIR="$HOME/.nvm"
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
 
-export PATH="/opt/homebrew/sbin:$PATH"
-
-#################################################
-
-# KUBERNETES
-KUBE_CONFIG=~/.kube/config
-alias k='kubectl'
-alias dk='kubectl --kubeconfig=/Users/jansenfuller/.kube/config_lab'
+PATH="/opt/homebrew/sbin:$PATH"
