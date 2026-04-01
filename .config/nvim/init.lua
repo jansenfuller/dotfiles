@@ -30,6 +30,12 @@ require("lazy").setup({
 
   -- These are some examples, uncomment them if you want to see them work!
   {
+    "folke/todo-comments.nvim",
+    lazy = false,
+    dependencies = { "nvim-lua/plenary.nvim" },
+  },
+  --
+  {
     "neovim/nvim-lspconfig",
     config = function()
       require "configs.lspconfig"

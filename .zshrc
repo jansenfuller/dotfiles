@@ -8,6 +8,8 @@ export MANPATH="/usr/local/man:$MANPATH"
 export LANG=en_US.UTF-8
 export ARCHFLAGS="-arch x86_64"
 export CPPFLAGS="-I/opt/homebrew/opt/curl/include"
+alias wrangler="npx wrangler"
+export PATH=$HOME/.cargo/bin/:$PATH
 
 # SSH
 export SSH_AUTH_SOCK=~/.bitwarden-ssh-agent.sock
@@ -22,6 +24,7 @@ alias gpl='git pull'
 alias gpu='git push'
 alias gch='git checkout'
 alias gnb='git checkout -b'
+alias forgejo='tea'
 
 # Kubernetes
 export KUBE_CONFIG=~/.kube/config
