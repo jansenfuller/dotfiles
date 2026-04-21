@@ -5,8 +5,8 @@ vim.lsp.config('yamlls', {
     yaml = {
       schemas = {
         ["https://raw.githubusercontent.com/yannh/kubernetes-json-schema/refs/heads/master/v1.32.1-standalone-strict/all.json"] = "/*.k8s.yaml",
-      },
-    },
+      }
+    }
   }
 })
 
@@ -18,8 +18,8 @@ vim.lsp.config('gopls', {
       },
       staticcheck = true,
       gofumpt = true,
-    },
-  },
+    }
+  }
 })
 
 
@@ -29,13 +29,11 @@ vim.lsp.config('dockerls', {
 	    languageserver = {
         formatter = {
           ignoreMultilineInstructions = true,
-        },
-	    },
+        }
+	    }
     }
   }
 })
 
-local servers = { "html", "cssls", "yamlls", "bashls", "gopls", "sqls", "graphql", "dockerls"}
+local servers = { "html", "cssls", "yamlls", "bashls", "gopls", "ts_ls", "dockerls", "expert"}
 vim.lsp.enable(servers)
-
--- read :h vim.lsp.config for changing options of lsp servers 

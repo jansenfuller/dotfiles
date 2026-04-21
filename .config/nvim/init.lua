@@ -11,7 +11,7 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 
-local lazy_config = require "configs.lazy"
+local lazy_config = require "lazy"
 
 -- load plugins
 require("lazy").setup({
@@ -22,52 +22,21 @@ require("lazy").setup({
     import = "nvchad.plugins",
   },
 
-  {
-    "stevearc/conform.nvim",
-    -- event = 'BufWritePre', -- uncomment for format on save
-    opts = require "configs.conform",
-  },
+  -- Custom Plugins
 
-  -- These are some examples, uncomment them if you want to see them work!
+  { "wakatime/vim-wakatime", lazy = false },
+
   {
     "folke/todo-comments.nvim",
     lazy = false,
     dependencies = { "nvim-lua/plenary.nvim" },
   },
-  --
+
   {
     "neovim/nvim-lspconfig",
     config = function()
-      require "configs.lspconfig"
+      require "lsp"
     end,
-  },
-
-  { "wakatime/vim-wakatime", lazy = false },
-
-  {
-    "olimorris/codecompanion.nvim",
-    lazy = false,
-    version = "^18.0.0",
-    opts = {
-      interactions = {
-        chat = {
-          adapter = {
-            name = "ollama",
-            model = "qwen3:1.7b"
-          },
-        },
-        inline = {
-          adapter = {
-            name = "ollama",
-            model = "qwen3:1.7b"
-          }
-        }
-      },
-    },
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
   },
 }, lazy_config)
 
@@ -80,8 +49,6 @@ require "nvchad.autocmds"
 
 vim.schedule(function()
   require "nvchad.mappings"
-
-  -- add yours here
 
   local map = vim.keymap.set
 
