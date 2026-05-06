@@ -1,5 +1,5 @@
 # Directories
-export PATH=$HOME:/opt/homebrew/bin:/opt/homebrew/opt/curl/bin:/usr/local/bin:/usr/local/sbin:$PATH
+export PATH=$HOME/go/bin:$HOME/.cargo/bin:/opt/homebrew/sbin:/opt/homebrew/bin:/opt/homebrew/opt/curl/bin:/usr/local/bin:/usr/local/sbin:$PATH
 alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 export dev=$HOME/dev
 
@@ -9,15 +9,18 @@ export LANG=en_US.UTF-8
 export ARCHFLAGS="-arch x86_64"
 export CPPFLAGS="-I/opt/homebrew/opt/curl/include"
 alias wrangler="npx wrangler"
-export PATH=$HOME/.cargo/bin/:$PATH
 
 # SSH
 export SSH_AUTH_SOCK=~/.bitwarden-ssh-agent.sock
+
+# Curl
+function hcurl() { curl --header "Host: $1" ${@:2} ;}
 
 # Vim
 alias vim='nvim'
 
 # git
+alias gs='git status'
 alias ga='git add'
 alias gc='git commit -m'
 alias gpl='git pull'
@@ -68,7 +71,6 @@ export GEOMETRY_GIT_TIME_DETAILED=true     # show full time (e.g. `12h 30m 53s`)
 #################################################
 
 # NVM
-
 export NVM_DIR="$HOME/.nvm"
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
@@ -76,10 +78,10 @@ export NVM_DIR="$HOME/.nvm"
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
 
-export PATH="/opt/homebrew/sbin:$PATH"
-
 PATH="/Users/jansenfuller/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/Users/jansenfuller/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/Users/jansenfuller/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/Users/jansenfuller/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/Users/jansenfuller/perl5"; export PERL_MM_OPT;
+# lean-ctx shell hook
+[ -f "/Users/jansenfuller/.config/lean-ctx/shell-hook.zsh" ] && . "/Users/jansenfuller/.config/lean-ctx/shell-hook.zsh"
