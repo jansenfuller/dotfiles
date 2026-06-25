@@ -9,6 +9,9 @@ export LANG=en_US.UTF-8
 export ARCHFLAGS="-arch x86_64"
 export CPPFLAGS="-I/opt/homebrew/opt/curl/include"
 alias wrangler="npx wrangler"
+export XDG_CONFIG_HOME="$HOME/.config"
+export EDITOR="vim"
+alias new-secret="openssl rand -base64 36"
 
 # SSH
 export SSH_AUTH_SOCK=~/.bitwarden-ssh-agent.sock
@@ -83,5 +86,16 @@ PERL5LIB="/Users/jansenfuller/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export 
 PERL_LOCAL_LIB_ROOT="/Users/jansenfuller/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/Users/jansenfuller/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/Users/jansenfuller/perl5"; export PERL_MM_OPT;
-# lean-ctx shell hook
-[ -f "/Users/jansenfuller/.config/lean-ctx/shell-hook.zsh" ] && . "/Users/jansenfuller/.config/lean-ctx/shell-hook.zsh"
+# lean-ctx shell hook — begin
+if [ -f "/Users/jansenfuller/.lean-ctx/shell-hook.zsh" ]; then
+. "/Users/jansenfuller/.lean-ctx/shell-hook.zsh"
+fi
+# lean-ctx shell hook — end
+
+# pnpm
+export PNPM_HOME="/Users/jansenfuller/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
