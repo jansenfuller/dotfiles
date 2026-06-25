@@ -4,6 +4,16 @@ require("lazyload").on_vim_enter(function()
     { src = "https://github.com/nvim-telescope/telescope.nvim" },
   })
 
+  -- ── grug-far.nvim: interactive find & replace ────────────────
+  vim.pack.add({
+    { src = "https://github.com/MagicDuck/grug-far.nvim" },
+  })
+
+  require("grug-far").setup({})
+  vim.keymap.set("n", "<leader>fr", function()
+    require("grug-far").open()
+  end, { desc = "Find & replace in CWD" })
+
   require("telescope").setup({
     defaults = {
       mappings = {
