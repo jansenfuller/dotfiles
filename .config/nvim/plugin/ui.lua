@@ -40,16 +40,14 @@ require("lazyload").on_vim_enter(function()
 		lazy_load = true,
 	})
 
-	-- 1d. indent-blankline.nvim — indentation guides
+	-- 1d. blink.indent — fast indent guides (~10x faster than indent-blankline)
 	vim.pack.add({
-		{ src = "https://github.com/lukas-reineke/indent-blankline.nvim" },
+		{ src = "https://github.com/saghen/blink.indent" },
 	})
-	require("ibl").setup({
-		debounce = 500,
-		indent = { highlight = "IblIndent" },
+	require("blink.indent").setup({
 		scope = {
 			enabled = true,
-			highlight = "IblScope",
+			indent_at_cursor = true,
 		},
 	})
 
@@ -85,6 +83,21 @@ require("lazyload").on_vim_enter(function()
 		end,
 	})
 
+	-- 2b. tiny-inline-diagnostic.nvim — inline diagnostics
+	vim.pack.add({
+		{ src = "https://github.com/rachartier/tiny-inline-diagnostic.nvim" },
+	})
+	require("tiny-inline-diagnostic").setup({
+		preset = "minimal",
+		options = {
+			throttle = 50,
+			softwrap = 40,
+			multilines = { enabled = true },
+			show_code = false,
+			show_source = { enabled = true, if_many = true },
+		},
+	})
+
 	-- 3. mini.statusline — lightweight statusline
 	vim.pack.add({
 		{ src = "https://github.com/echasnovski/mini.nvim" },
@@ -97,7 +110,18 @@ require("lazyload").on_vim_enter(function()
 				local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
 				local git = MiniStatusline.section_git({ trunc_width = 75 })
 				local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
-				local filename = MiniStatusline.section_filename({ trunc_width = 140 })
+				-- Path relative to project root
+				local filename = vim.fn.expand("%:p")
+				if filename ~= "" then
+					local root = vim.fs.root(0, { ".git" })
+					if root then
+						filename = filename:sub(#root + 2)
+					else
+						filename = vim.fn.expand("%:t")
+					end
+				else
+					filename = "[No Name]"
+				end
 				local fileinfo = MiniStatusline.section_fileinfo({ trunc_width = 120 })
 				-- Unstaged diff stats from gitsigns
 				local diff = ""
@@ -119,9 +143,9 @@ require("lazyload").on_vim_enter(function()
 				end
 				return MiniStatusline.combine_groups({
 					{ hl = mode_hl, strings = { mode } },
-					{ hl = "MiniStatuslineFilename", strings = { git .. diff, diagnostics, filename } },
+					{ hl = "MiniStatuslineFilename", strings = { git .. diff, filename } },
 					"%=",
-					{ hl = "MiniStatuslineFileinfo", strings = { fileinfo } },
+					{ hl = "MiniStatuslineFileinfo", strings = { diagnostics, fileinfo } },
 				})
 			end,
 		},
@@ -215,5 +239,18 @@ require("lazyload").on_vim_enter(function()
 		filesystem_watchers = {
 			enable = false,
 		},
+	})
+
+	-- 7. Vim Wrapped
+	vim.pack.add({
+		{ src = "https://github.com/nvzone/volt" },
+	})
+	vim.pack.add({
+		{ src = "https://github.com/aikhe/wrapped.nvim" },
+	})
+
+	-- 8. Smart Paste
+	vim.pack.add({
+		{ src = "https://github.com/nemanjamalesija/smart-paste.nvim" },
 	})
 end)

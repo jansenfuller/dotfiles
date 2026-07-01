@@ -10,10 +10,12 @@ vim.opt.smartindent = true
 
 -- UI
 vim.opt.termguicolors = true
+vim.opt.guifont = "JetBrainsMono Nerd Font Mono:h12"
 vim.opt.laststatus = 3 -- global statusline (one across full width)
 vim.opt.pumblend = 0 -- no popup transparency (reduces escape sequences)
 vim.opt.mouse = "a"
 vim.opt.clipboard = "unnamedplus"
+vim.opt.fileformat = "unix"  -- default to unix line endings
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "line"
 
@@ -29,8 +31,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 		vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#D8C27A" }) -- crayon yellow
 		vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#B27B78" }) -- crayon red
 		-- Indent guides: subtle lines, active scope brighter
-		vim.api.nvim_set_hl(0, "IblIndent", { fg = "#383E47" }) -- crayon medium dark gray
-		vim.api.nvim_set_hl(0, "IblScope", { fg = "#586270" }) -- crayon medium gray
+		vim.api.nvim_set_hl(0, "BlinkIndent", { fg = "#383E47" }) -- crayon medium dark gray
+		vim.api.nvim_set_hl(0, "BlinkIndentScope", { fg = "#586270" }) -- crayon medium gray
 		-- Statusline: bright text (crayon default is #586270 which is unreadable)
 		vim.api.nvim_set_hl(0, "StatusLine", { fg = "#BCC5D1", bg = "#101112" })
 		-- Statusline mode colors (lualine-style)
@@ -84,22 +86,14 @@ vim.diagnostic.config({
 	},
 })
 
--- Show diagnostic float on hover after 750ms idle
-vim.api.nvim_create_autocmd("CursorHold", {
-	callback = function()
-		vim.diagnostic.open_float(nil, {
-			scope = "cursor",
-			border = "rounded",
-			source = true,
-			focusable = false,
-			prefix = "● ",
-		})
-	end,
-})
+
 
 -- Format on save (via LSP)
 vim.api.nvim_create_autocmd("BufWritePre", {
 	callback = function()
+		-- Force unix line endings
+		vim.opt.fileformat = "unix"
+		-- Format via LSP
 		local clients = vim.lsp.get_clients({ bufnr = 0 })
 		if #clients > 0 then
 			pcall(vim.lsp.buf.format, { async = false, timeout_ms = 10000 })
@@ -107,16 +101,16 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 	end,
 })
 
--- Telescope
-vim.keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
-vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
-vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Buffers" })
-vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
+-- Find (under <leader>f)
+vim.keymap.set("n", "<leader>ff", function() Snacks.picker.files({ hidden = true }) end, { desc = "Find files" })
+vim.keymap.set("n", "<leader>fg", function() Snacks.picker.grep({ args = { "--hidden" } }) end, { desc = "Live grep" })
+vim.keymap.set("n", "<leader>fb", function() Snacks.picker.buffers() end, { desc = "Buffers" })
+vim.keymap.set("n", "<leader>fh", function() Snacks.picker.help() end, { desc = "Help tags" })
 
 -- Git (under <leader>g)
-vim.keymap.set("n", "<leader>gs", "<cmd>Telescope git_status<CR>", { desc = "Git status" })
-vim.keymap.set("n", "<leader>gb", "<cmd>Telescope git_branches<CR>", { desc = "Git branches" })
-vim.keymap.set("n", "<leader>gc", "<cmd>Telescope git_commits<CR>", { desc = "Git commits" })
+vim.keymap.set("n", "<leader>gs", function() Snacks.picker.git_status() end, { desc = "Git status" })
+vim.keymap.set("n", "<leader>gb", function() Snacks.picker.git_branches() end, { desc = "Git branches" })
+vim.keymap.set("n", "<leader>gc", function() Snacks.picker.git_log() end, { desc = "Git commits" })
 
 -- Formatting (under <leader>m)
 vim.keymap.set("n", "<leader>mf", function()
@@ -184,3 +178,6 @@ end, { desc = "Keymaps (which-key)" })
 
 -- Clear search highlight
 vim.keymap.set("n", "<leader>h", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+
+-- Select all
+vim.keymap.set("n", "<C-a>", "ggVG", { desc = "Select all" })
