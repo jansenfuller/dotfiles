@@ -19,7 +19,6 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>g", group = "Git" },
 		{ "<leader>m", group = "Format" },
 		{ "<leader>h", group = "Hunk", icon = "" },
-		{ "<leader>l", group = "LSP" },
 		{ "<leader>z", group = "Fold" },
 	})
 
@@ -208,9 +207,4 @@ require("lazyload").on_vim_enter(function()
 	vim.pack.add({
 		{ src = "https://github.com/nemanjamalesija/smart-paste.nvim" },
 	})
-
-	-- Auto-refresh project diagnostics on open (3s delay for LSP to initialize)
-	vim.defer_fn(function()
-		require("project_diagnostics").auto_refresh()
-	end, 3000)
 end)

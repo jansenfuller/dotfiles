@@ -26,6 +26,9 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 	callback = function()
 		-- Cursor line: subtle highlight using crayon's dark gray (#282C33)
 		vim.api.nvim_set_hl(0, "CursorLine", { bg = "#282C33" })
+		-- Line numbers: as bright as normal text
+		local normal_fg = vim.api.nvim_get_hl(0, { id = vim.api.nvim_get_hl_id_by_name("Normal") }).fg
+		vim.api.nvim_set_hl(0, "LineNr", { fg = normal_fg })
 		-- Window separator: subtle line using crayon's dark gray
 		vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#282C33", bg = "#101112" })
 		-- Git gutter signs: crayon palette colors
@@ -217,16 +220,6 @@ end, { desc = "Keymaps (which-key)" })
 vim.keymap.set("n", "<leader>z", "za", { desc = "Toggle fold" })
 vim.keymap.set("n", "<leader>zR", "zR", { desc = "Open all folds" })
 vim.keymap.set("n", "<leader>zM", "zM", { desc = "Close all folds" })
-
--- LSP / Project Diagnostics (under <leader>l)
-local function refresh_diag()
-  require("project_diagnostics").refresh()
-end
-local function open_diag()
-  require("project_diagnostics").open()
-end
-vim.keymap.set("n", "<leader>lr", refresh_diag, { desc = "Refresh project diagnostics" })
-vim.keymap.set("n", "<leader>ld", open_diag, { desc = "Open all diagnostics" })
 
 -- Clear search highlight
 vim.keymap.set("n", "<leader>h", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })

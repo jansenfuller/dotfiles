@@ -21,10 +21,31 @@ require("lazyload").on_vim_enter(function()
   require("mason").setup()
 
   -- ── Mason-LSPConfig: bridge mason ↔ lspconfig ───────────────
-  -- No ensure_installed — assumes servers are already installed via :Mason.
+  -- Servers to auto-install. Already-installed servers are skipped.
   -- automatic_enable = true (default) calls vim.lsp.enable() for installed
   -- servers, which defers actual startup until a matching filetype opens.
-  require("mason-lspconfig").setup()
+  require("mason-lspconfig").setup({
+    ensure_installed = {
+      "ruby_lsp",       -- Ruby + Rails (via ruby-lsp-rails gem)
+      "rubocop",        -- Ruby linter (integrated with ruby-lsp)
+    },
+    handlers = {
+      -- Custom config for ruby_lsp (Rails support)
+      ruby_lsp = function()
+        require("lspconfig").ruby_lsp.setup({
+          cmd = { "ruby-lsp" },
+          init_options = {
+            formatter = "auto",
+            -- ruby-lsp-rails is auto-detected from the Gemfile when installed
+          },
+        })
+      end,
+      -- Default: use lspconfig defaults for all other servers
+      function(server_name)
+        require("lspconfig")[server_name].setup({})
+      end,
+    },
+  })
 
   -- ── Blink.cmp: autocompletion ───────────────────────────────
   require("blink.cmp").setup({

@@ -22,6 +22,7 @@ require("lazyload").on_vim_enter(function()
 		elixir = { "elixir" }, markdown = { "markdown", "markdown_inline" },
 		bash = { "bash" }, yaml = { "yaml" }, json = { "json" }, toml = { "toml" },
 		typescript = { "typescript", "javascript" }, html = { "html" }, css = { "css" },
+		ruby = { "ruby" }, eruby = { "embedded_template" },
 	}
 	-- Filetypes that get derived parsers (e.g. typescriptreact → typescript)
 	local derived = { typescriptreact = "typescript", javascriptreact = "javascript" }
