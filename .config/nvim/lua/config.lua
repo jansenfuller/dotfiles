@@ -218,6 +218,16 @@ vim.keymap.set("n", "<leader>z", "za", { desc = "Toggle fold" })
 vim.keymap.set("n", "<leader>zR", "zR", { desc = "Open all folds" })
 vim.keymap.set("n", "<leader>zM", "zM", { desc = "Close all folds" })
 
+-- LSP / Project Diagnostics (under <leader>l)
+local function refresh_diag()
+  require("project_diagnostics").refresh()
+end
+local function open_diag()
+  require("project_diagnostics").open()
+end
+vim.keymap.set("n", "<leader>lr", refresh_diag, { desc = "Refresh project diagnostics" })
+vim.keymap.set("n", "<leader>ld", open_diag, { desc = "Open all diagnostics" })
+
 -- Clear search highlight
 vim.keymap.set("n", "<leader>h", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 

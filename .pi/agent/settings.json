@@ -1,0 +1,33 @@
+{
+  "lastChangelogVersion": "0.80.3",
+  "defaultProvider": "deepseek",
+  "defaultModel": "deepseek-v4-flash",
+  "defaultThinkingLevel": "high",
+  "packages": [
+    "npm:pi-lean-ctx",
+    "npm:pi-subagents",
+    "npm:pi-web-access",
+    "npm:pi-mcp-adapter",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@juicesharp/rpiv-btw",
+    "npm:@gotgenes/pi-permission-system",
+    "npm:pi-powerline-footer",
+    "npm:pi-markdown-preview",
+    "npm:pi-cache-optimizer"
+  ],
+  "terminal": {
+    "showImages": false,
+    "showTerminalProgress": true
+  },
+  "images": {
+    "autoResize": false,
+    "blockImages": true
+  },
+  "hideThinkingBlock": false,
+  "collapseChangelog": true,
+  "enableInstallTelemetry": false,
+  "doubleEscapeAction": "tree",
+  "treeFilterMode": "user-only",
+  "theme": "dark"
+}

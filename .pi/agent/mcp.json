@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "lean-ctx": {
+      "command": "/opt/homebrew/bin/lean-ctx",
+      "env": {
+        "LEAN_CTX_DATA_DIR": "/Users/jansenfuller/.lean-ctx"
+      }
+    }
+  }
+}

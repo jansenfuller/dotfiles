@@ -1,0 +1,65 @@
+term = xterm-256color
+# Font
+font-family = "JetBrainsMono Nerd Font Mono"
+font-size = 12.5
+
+# Cursor
+cursor-style = bar
+
+# Scrollback
+scrollback-limit = 10000
+
+# Performance (150 FPS, no artificial delay, no vsync)
+window-vsync = false
+
+# Behavior
+copy-on-select = clipboard
+confirm-close-surface = false
+
+# Colors - Tomorrow Night
+foreground = #c5c8c6
+background = #1d1f21
+cursor-color = #c5c8c6
+
+selection-foreground = #000000
+selection-background = #fffacd
+
+# black
+palette = 0=#282a2e
+palette = 8=#373b41
+
+# red
+palette = 1=#a54242
+palette = 9=#cc6666
+
+# green
+palette = 2=#8c9440
+palette = 10=#b5bd68
+
+# yellow
+palette = 3=#de935f
+palette = 11=#f0c674
+
+# blue
+palette = 4=#5f819d
+palette = 12=#81a2be
+
+# magenta
+palette = 5=#85678f
+palette = 13=#b294bb
+
+# cyan
+palette = 6=#5e8d87
+palette = 14=#8abeb7
+
+# white
+palette = 7=#707880
+palette = 15=#c5c8c6
+
+# macOS
+macos-option-as-alt = left
+macos-titlebar-style = tabs
+
+# Keybinds
+keybind = super+t=new_tab
+keybind = super+enter=new_split:right
