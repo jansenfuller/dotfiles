@@ -83,13 +83,22 @@ require("lazyload").on_vim_enter(function()
     callback = function(ev)
       local opts = { buffer = ev.buf }
       vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+      vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+      vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, opts)
       vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+      vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts)
       vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
       vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
-      vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts)
       vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
       vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
+    end,
+  })
+
+  -- Clean up buffer-local keymaps when LSP detaches
+  vim.api.nvim_create_autocmd("LspDetach", {
+    callback = function(ev)
+      vim.api.nvim_buf_clear_namespace(ev.buf, 0, 0, -1)
     end,
   })
 end)

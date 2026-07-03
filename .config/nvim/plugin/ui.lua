@@ -7,7 +7,7 @@ require("lazyload").on_vim_enter(function()
 		default = true,
 	})
 
-	-- 1b. which-key.nvim — auto-shows leader keybindings popup
+	-- 2. which-key.nvim — auto-shows leader keybindings popup
 	vim.pack.add({
 		{ src = "https://github.com/folke/which-key.nvim" },
 	})
@@ -15,32 +15,27 @@ require("lazyload").on_vim_enter(function()
 		delay = 50, -- show popup faster when leader is pressed
 	})
 	require("which-key").add({
-		{ "<leader>f", group = "Find" },
+		{ "<leader>f", group = "Find", icon = "" },
 		{ "<leader>g", group = "Git" },
 		{ "<leader>m", group = "Format" },
+		{ "<leader>h", group = "Hunk", icon = "" },
+		{ "<leader>z", group = "Fold" },
 	})
 
-	-- 1c. nvim-colorizer.lua — inline hex/color swatches (CSS only)
+	-- 3. nvim-colorizer.lua — inline hex/color swatches (CSS only)
 	vim.pack.add({
 		{ src = "https://github.com/NvChad/nvim-colorizer.lua" },
 	})
 	require("colorizer").setup({
 		filetypes = { "css", "scss", "sass", "less", "html" },
 		options = {
-			parsers = {
-				names = { enable = true },
-				hex = { default = true, rrggbbaa = true },
-				rgb = { enable = true },
-				hsl = { enable = true },
-			},
-			display = {
-				mode = "background",
-			},
+			parsers = { css = true },
+			display = { mode = "background" },
 		},
 		lazy_load = true,
 	})
 
-	-- 1d. blink.indent — fast indent guides (~10x faster than indent-blankline)
+	-- 4. blink.indent — fast indent guides
 	vim.pack.add({
 		{ src = "https://github.com/saghen/blink.indent" },
 	})
@@ -51,7 +46,7 @@ require("lazyload").on_vim_enter(function()
 		},
 	})
 
-	-- 2. gitsigns.nvim — git gutter signs (+ ~ ─)
+	-- 5. gitsigns.nvim — git gutter signs (+ ~ ─)
 	vim.pack.add({
 		{ src = "https://github.com/lewis6991/gitsigns.nvim" },
 	})
@@ -83,7 +78,7 @@ require("lazyload").on_vim_enter(function()
 		end,
 	})
 
-	-- 2b. tiny-inline-diagnostic.nvim — inline diagnostics
+	-- 6. tiny-inline-diagnostic.nvim — inline diagnostics
 	vim.pack.add({
 		{ src = "https://github.com/rachartier/tiny-inline-diagnostic.nvim" },
 	})
@@ -98,7 +93,7 @@ require("lazyload").on_vim_enter(function()
 		},
 	})
 
-	-- 3. mini.statusline — lightweight statusline
+	-- 7. mini.statusline — lightweight statusline
 	vim.pack.add({
 		{ src = "https://github.com/echasnovski/mini.nvim" },
 	})
@@ -106,55 +101,14 @@ require("lazyload").on_vim_enter(function()
 		use_icons = true,
 		set_vim_settings = true,
 		content = {
-			active = function()
-				local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
-				local git = MiniStatusline.section_git({ trunc_width = 75 })
-				local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
-				-- Path relative to project root
-				local filename = vim.fn.expand("%:p")
-				if filename ~= "" then
-					local root = vim.fs.root(0, { ".git" })
-					if root then
-						filename = filename:sub(#root + 2)
-					else
-						filename = vim.fn.expand("%:t")
-					end
-				else
-					filename = "[No Name]"
-				end
-				local fileinfo = MiniStatusline.section_fileinfo({ trunc_width = 120 })
-				-- Unstaged diff stats from gitsigns
-				local diff = ""
-				local d = vim.b.gitsigns_status_dict
-				if d then
-					local parts = {}
-					if d.added and d.added > 0 then
-						table.insert(parts, "+" .. d.added)
-					end
-					if d.changed and d.changed > 0 then
-						table.insert(parts, "~" .. d.changed)
-					end
-					if d.removed and d.removed > 0 then
-						table.insert(parts, "-" .. d.removed)
-					end
-					if #parts > 0 then
-						diff = " " .. table.concat(parts, " ")
-					end
-				end
-				return MiniStatusline.combine_groups({
-					{ hl = mode_hl, strings = { mode } },
-					{ hl = "MiniStatuslineFilename", strings = { git .. diff, filename } },
-					"%=",
-					{ hl = "MiniStatuslineFileinfo", strings = { diagnostics, fileinfo } },
-				})
-			end,
+			active = require("statusline").active,
 		},
 	})
 
-	-- 4. bufferline.nvim — NvChad-style tabufline
+	-- 8. bufferline.nvim — NvChad-style tabufline
 	local bg_lighter = "#2a2b2e"
 	vim.pack.add({
-		{ src = "https://github.com/akinsho/bufferline.nvim", version = "v4.*" },
+		{ src = "https://github.com/akinsho/bufferline.nvim" },
 	})
 	require("bufferline").setup({
 		highlights = {
@@ -177,7 +131,7 @@ require("lazyload").on_vim_enter(function()
 		},
 	})
 
-	-- 5. FTerm.nvim — floating terminal (Alt-i, persistent session)
+	-- 9. FTerm.nvim — floating terminal (Alt-i, persistent session)
 	vim.pack.add({
 		{ src = "https://github.com/numToStr/FTerm.nvim" },
 	})
@@ -196,7 +150,7 @@ require("lazyload").on_vim_enter(function()
 		FTerm:toggle()
 	end, { desc = "Toggle terminal" })
 
-	-- 6. nvim-tree.lua — file explorer (tuned for speed, git-aware)
+	-- 10. nvim-tree.lua — file explorer (tuned for speed, git-aware)
 	vim.pack.add({
 		{ src = "https://github.com/nvim-tree/nvim-tree.lua" },
 	})
@@ -241,7 +195,7 @@ require("lazyload").on_vim_enter(function()
 		},
 	})
 
-	-- 7. Vim Wrapped
+	-- 11. Vim Wrapped
 	vim.pack.add({
 		{ src = "https://github.com/nvzone/volt" },
 	})
@@ -249,7 +203,7 @@ require("lazyload").on_vim_enter(function()
 		{ src = "https://github.com/aikhe/wrapped.nvim" },
 	})
 
-	-- 8. Smart Paste
+	-- 12. Smart Paste
 	vim.pack.add({
 		{ src = "https://github.com/nemanjamalesija/smart-paste.nvim" },
 	})

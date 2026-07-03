@@ -1,12 +1,14 @@
 -- Line numbers
 vim.opt.number = true
--- vim.opt.relativenumber = true  -- temporarily disabled: can cause scroll jitter on large files
+vim.opt.relativenumber = true -- disabled: scroll jitter over SSH
 
 -- Tabs & indentation
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.smartindent = true
+vim.opt.swapfile = false
+vim.opt.inccommand = "split"
 
 -- UI
 vim.opt.termguicolors = true
@@ -15,7 +17,7 @@ vim.opt.laststatus = 3 -- global statusline (one across full width)
 vim.opt.pumblend = 0 -- no popup transparency (reduces escape sequences)
 vim.opt.mouse = "a"
 vim.opt.clipboard = "unnamedplus"
-vim.opt.fileformat = "unix"  -- default to unix line endings
+vim.opt.fileformat = "unix" -- default to unix line endings
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "line"
 
@@ -59,6 +61,13 @@ vim.opt.incsearch = true
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
+-- Folds (treesitter-powered)
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldtext = ""
+vim.opt.foldlevel = 99
+vim.opt.foldopen:remove("hor") -- don't open folds on horizontal movement
+
 -- Performance
 vim.opt.updatetime = 750
 vim.opt.timeoutlen = 300 -- leader completion timeout
@@ -86,8 +95,6 @@ vim.diagnostic.config({
 	},
 })
 
-
-
 -- Format on save (via LSP)
 vim.api.nvim_create_autocmd("BufWritePre", {
 	callback = function()
@@ -102,15 +109,44 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 
 -- Find (under <leader>f)
-vim.keymap.set("n", "<leader>ff", function() Snacks.picker.files({ hidden = true }) end, { desc = "Find files" })
-vim.keymap.set("n", "<leader>fg", function() Snacks.picker.grep({ args = { "--hidden" } }) end, { desc = "Live grep" })
-vim.keymap.set("n", "<leader>fb", function() Snacks.picker.buffers() end, { desc = "Buffers" })
-vim.keymap.set("n", "<leader>fh", function() Snacks.picker.help() end, { desc = "Help tags" })
+vim.keymap.set("n", "<leader>ff", function()
+	Snacks.picker.files({ hidden = true })
+end, { desc = "Find files" })
+vim.keymap.set("n", "<leader>fg", function()
+	Snacks.picker.grep({ args = { "--hidden" } })
+end, { desc = "Live grep" })
+vim.keymap.set("n", "<leader>fb", function()
+	Snacks.picker.buffers()
+end, { desc = "Buffers" })
+vim.keymap.set("n", "<leader>fh", function()
+	Snacks.picker.help()
+end, { desc = "Help tags" })
 
 -- Git (under <leader>g)
-vim.keymap.set("n", "<leader>gs", function() Snacks.picker.git_status() end, { desc = "Git status" })
-vim.keymap.set("n", "<leader>gb", function() Snacks.picker.git_branches() end, { desc = "Git branches" })
-vim.keymap.set("n", "<leader>gc", function() Snacks.picker.git_log() end, { desc = "Git commits" })
+vim.keymap.set("n", "<leader>gs", function()
+	Snacks.picker.git_status()
+end, { desc = "Git status" })
+vim.keymap.set("n", "<leader>gb", function()
+	Snacks.picker.git_branches()
+end, { desc = "Git branches" })
+vim.keymap.set("n", "<leader>gc", function()
+	Snacks.picker.git_log()
+end, { desc = "Git commits" })
+
+-- Gitsigns hunks (under <leader>h)
+vim.keymap.set("n", "<leader>hs", "<cmd>lua require'gitsigns'.stage_hunk()<CR>", { desc = "Stage hunk" })
+vim.keymap.set("n", "<leader>hr", "<cmd>lua require'gitsigns'.reset_hunk()<CR>", { desc = "Reset hunk" })
+vim.keymap.set("n", "<leader>hp", "<cmd>lua require'gitsigns'.preview_hunk()<CR>", { desc = "Preview hunk" })
+vim.keymap.set("n", "<leader>hu", "<cmd>lua require'gitsigns'.undo_stage_hunk()<CR>", { desc = "Undo stage hunk" })
+vim.keymap.set("n", "<leader>hb", "<cmd>lua require'gitsigns'.blame_line()<CR>", { desc = "Blame line" })
+vim.keymap.set("n", "<leader>hS", "<cmd>lua require'gitsigns'.stage_buffer()<CR>", { desc = "Stage buffer" })
+vim.keymap.set("n", "<leader>hR", "<cmd>lua require'gitsigns'.reset_buffer()<CR>", { desc = "Reset buffer" })
+vim.keymap.set(
+	"n",
+	"<leader>hU",
+	"<cmd>lua require'gitsigns'.reset_buffer_index()<CR>",
+	{ desc = "Reset buffer index" }
+)
 
 -- Formatting (under <leader>m)
 vim.keymap.set("n", "<leader>mf", function()
@@ -119,19 +155,13 @@ end, { desc = "Format current file" })
 vim.keymap.set("n", "<leader>ma", function()
 	local count = 0
 	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-		if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].modified and vim.bo[bufnr].filetype ~= "" then
-			vim.api.nvim_buf_call(bufnr, function()
-				pcall(vim.lsp.buf.format, { async = false, timeout_ms = 10000 })
-			end)
+		if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].modified then
+			pcall(vim.lsp.buf.format, { bufnr = bufnr, async = true, timeout_ms = 10000 })
 			count = count + 1
 		end
 	end
-	if count > 0 then
-		vim.notify("Formatted " .. count .. " buffer(s)", vim.log.levels.INFO)
-	else
-		vim.notify("No modified buffers to format", vim.log.levels.INFO)
-	end
-end, { desc = "Format all modified buffers in CWD" })
+	vim.notify("Formatted " .. count .. " buffer(s)", vim.log.levels.INFO)
+end, { desc = "Format all modified buffers" })
 
 -- Close buffer
 vim.keymap.set("n", "<leader>x", function()
@@ -164,6 +194,13 @@ vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previou
 
 -- File explorer
 vim.keymap.set("n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
+vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
+
+-- Split management
+vim.keymap.set("n", "<leader>v", "<cmd>vsplit<CR>", { desc = "Vertical split" })
+vim.keymap.set("n", "<leader>s", "<cmd>split<CR>", { desc = "Horizontal split" })
+vim.keymap.set("n", "<leader>q", "<C-w>c", { desc = "Close split" })
+vim.keymap.set("n", "<C-w>", "<C-w>c", { desc = "Close split" })
 
 -- Window navigation via Ctrl+h/j/k/l (move between splits)
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Window left" })
@@ -175,6 +212,11 @@ vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Window right" })
 vim.keymap.set("n", "<leader>?", function()
 	require("which-key").show({ global = false })
 end, { desc = "Keymaps (which-key)" })
+
+-- Folding (under <leader>z)
+vim.keymap.set("n", "<leader>z", "za", { desc = "Toggle fold" })
+vim.keymap.set("n", "<leader>zR", "zR", { desc = "Open all folds" })
+vim.keymap.set("n", "<leader>zM", "zM", { desc = "Close all folds" })
 
 -- Clear search highlight
 vim.keymap.set("n", "<leader>h", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
