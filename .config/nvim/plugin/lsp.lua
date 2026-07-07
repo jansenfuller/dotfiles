@@ -25,10 +25,7 @@ require("lazyload").on_vim_enter(function()
   -- automatic_enable = true (default) calls vim.lsp.enable() for installed
   -- servers, which defers actual startup until a matching filetype opens.
   require("mason-lspconfig").setup({
-    ensure_installed = {
-      "ruby_lsp",       -- Ruby + Rails (via ruby-lsp-rails gem)
-      "rubocop",        -- Ruby linter (integrated with ruby-lsp)
-    },
+    -- Ruby LSP is assumed to be installed manually; no ensure_installed needed.
     handlers = {
       -- Custom config for ruby_lsp (Rails support)
       ruby_lsp = function()

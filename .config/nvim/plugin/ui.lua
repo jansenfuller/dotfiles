@@ -195,6 +195,13 @@ require("lazyload").on_vim_enter(function()
 		},
 	})
 
+	-- Refresh nvim-tree after saving any file
+	vim.api.nvim_create_autocmd("BufWritePost", {
+		callback = function()
+			pcall(function() require("nvim-tree.api").tree.reload() end)
+		end,
+	})
+
 	-- 11. Vim Wrapped
 	vim.pack.add({
 		{ src = "https://github.com/nvzone/volt" },
@@ -206,5 +213,24 @@ require("lazyload").on_vim_enter(function()
 	-- 12. Smart Paste
 	vim.pack.add({
 		{ src = "https://github.com/nemanjamalesija/smart-paste.nvim" },
+	})
+
+	-- 13. auto-save.nvim — auto-save on InsertLeave + TextChanged
+	vim.pack.add({
+		{ src = "https://github.com/pocco81/auto-save.nvim" },
+	})
+	require("auto-save").setup({
+		enabled = true,
+		execution_message = { message = "" },
+		events = { "InsertLeave", "TextChanged" },
+		conditions = {
+			exists = true,
+			filetype_is_not = {},
+		},
+	})
+
+	-- 14. wakatime/vim-wakatime — automatic time tracking
+	vim.pack.add({
+		{ src = "https://github.com/wakatime/vim-wakatime" },
 	})
 end)

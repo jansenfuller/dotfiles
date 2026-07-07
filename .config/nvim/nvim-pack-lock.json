@@ -4,6 +4,10 @@
       "rev": "d1320892cc2ebab472935242d9d992a2c9570180",
       "src": "https://github.com/numToStr/FTerm.nvim"
     },
+    "auto-save.nvim": {
+      "rev": "979b6c82f60cfa80f4cf437d77446d0ded0addf0",
+      "src": "https://github.com/pocco81/auto-save.nvim"
+    },
     "blink.cmp": {
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/Saghen/blink.cmp",
@@ -46,7 +50,7 @@
       "src": "https://github.com/williamboman/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "dc8a9918c3b1bc18a5fcd04d39b6d658074c0886",
+      "rev": "928971c3cfe99ddf29659acc31214cfa836fabe4",
       "src": "https://github.com/echasnovski/mini.nvim"
     },
     "nvim-colorizer.lua": {
@@ -54,11 +58,11 @@
       "src": "https://github.com/NvChad/nvim-colorizer.lua"
     },
     "nvim-lspconfig": {
-      "rev": "292f44408498103c47996ff5c18fd366293840d8",
+      "rev": "d224a1920728ba129880efc700d4a0180ac4ecbb",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-tree.lua": {
-      "rev": "7ff7040bf6c246671eb55cb1727de4fd9f92a106",
+      "rev": "35d3511e7ad4cbfa44c78c406db663b6e2a07c0d",
       "src": "https://github.com/nvim-tree/nvim-tree.lua"
     },
     "nvim-treesitter": {
@@ -70,7 +74,7 @@
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "smart-paste.nvim": {
-      "rev": "85993bd97a5cb957a2cf6da573db0fdf5fc28c3c",
+      "rev": "7eef31499d910959fe94bb1a99dcdae6eb30f90b",
       "src": "https://github.com/nemanjamalesija/smart-paste.nvim"
     },
     "snacks.nvim": {
@@ -78,7 +82,7 @@
       "src": "https://github.com/folke/snacks.nvim"
     },
     "tiny-inline-diagnostic.nvim": {
-      "rev": "e930d0a46031645040d5492595b46cdf6ab3514f",
+      "rev": "6264451f14119d63a52580e5198d6baf8518b0b2",
       "src": "https://github.com/rachartier/tiny-inline-diagnostic.nvim"
     },
     "undotree": {
