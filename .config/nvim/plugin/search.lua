@@ -3,9 +3,9 @@ require("lazyload").on_vim_enter(function()
 	vim.pack.add({
 		{ src = "https://github.com/folke/snacks.nvim" },
 	})
-	-- Enable only the picker module
 	require("snacks").setup({
 		picker = { enabled = true },
+		words = { enabled = true, debounce = 300 },
 	})
 
 	-- ── grug-far.nvim: interactive find & replace ────────────────

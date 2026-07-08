@@ -124,6 +124,27 @@ end, { desc = "Buffers" })
 vim.keymap.set("n", "<leader>fh", function()
 	Snacks.picker.help()
 end, { desc = "Help tags" })
+vim.keymap.set("n", "<leader>fd", function()
+	Snacks.picker.diagnostics()
+end, { desc = "Diagnostics" })
+vim.keymap.set("n", "<leader>fm", function()
+	Snacks.picker.keymaps()
+end, { desc = "Keymaps" })
+vim.keymap.set("n", "<leader>fz", function()
+	Snacks.picker.recent()
+end, { desc = "Recent files" })
+vim.keymap.set("n", "<leader>fc", function()
+	Snacks.picker.colorschemes()
+end, { desc = "Colorschemes" })
+vim.keymap.set("n", "<leader>fs", function()
+	Snacks.picker.lsp_symbols()
+end, { desc = "LSP symbols" })
+vim.keymap.set("n", "<leader>le", vim.lsp.buf.definition, { desc = "Go to definition" })
+vim.keymap.set("n", "<leader>li", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+vim.keymap.set("n", "<leader>lk", vim.lsp.buf.hover, { desc = "Hover documentation" })
+vim.keymap.set("n", "<leader>ls", function()
+	Snacks.picker.lsp_symbols()
+end, { desc = "LSP symbols" })
 
 -- Git (under <leader>g)
 vim.keymap.set("n", "<leader>gs", function()
@@ -140,16 +161,9 @@ end, { desc = "Git commits" })
 vim.keymap.set("n", "<leader>hs", "<cmd>lua require'gitsigns'.stage_hunk()<CR>", { desc = "Stage hunk" })
 vim.keymap.set("n", "<leader>hr", "<cmd>lua require'gitsigns'.reset_hunk()<CR>", { desc = "Reset hunk" })
 vim.keymap.set("n", "<leader>hp", "<cmd>lua require'gitsigns'.preview_hunk()<CR>", { desc = "Preview hunk" })
-vim.keymap.set("n", "<leader>hu", "<cmd>lua require'gitsigns'.undo_stage_hunk()<CR>", { desc = "Undo stage hunk" })
 vim.keymap.set("n", "<leader>hb", "<cmd>lua require'gitsigns'.blame_line()<CR>", { desc = "Blame line" })
-vim.keymap.set("n", "<leader>hS", "<cmd>lua require'gitsigns'.stage_buffer()<CR>", { desc = "Stage buffer" })
-vim.keymap.set("n", "<leader>hR", "<cmd>lua require'gitsigns'.reset_buffer()<CR>", { desc = "Reset buffer" })
-vim.keymap.set(
-	"n",
-	"<leader>hU",
-	"<cmd>lua require'gitsigns'.reset_buffer_index()<CR>",
-	{ desc = "Reset buffer index" }
-)
+vim.keymap.set("n", "<leader>hj", "<cmd>lua require'gitsigns'.next_hunk()<CR>", { desc = "Next hunk" })
+vim.keymap.set("n", "<leader>hk", "<cmd>lua require'gitsigns'.prev_hunk()<CR>", { desc = "Previous hunk" })
 
 -- Formatting (under <leader>m)
 vim.keymap.set("n", "<leader>mf", function()
@@ -212,17 +226,40 @@ vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Window up" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Window right" })
 
 -- Keymaps viewer
-vim.keymap.set("n", "<leader>?", function()
+vim.keymap.set("n", "<leader>kk", function()
 	require("which-key").show({ global = false })
-end, { desc = "Keymaps (which-key)" })
+end, { desc = "Keymaps" })
 
 -- Folding (under <leader>z)
+local function toggle_fold_block()
+	local closed = vim.fn.foldclosed(".")
+	if closed ~= -1 then
+		-- Cursor is on a closed fold — open it
+		vim.cmd("normal! za")
+	else
+		-- Cursor is inside an open block — find start and close it
+		local level = vim.fn.foldlevel(vim.fn.line("."))
+		if level > 0 then
+			vim.cmd("normal! [zza")
+		end
+	end
+end
 vim.keymap.set("n", "<leader>z", "za", { desc = "Toggle fold" })
-vim.keymap.set("n", "<leader>zR", "zR", { desc = "Open all folds" })
-vim.keymap.set("n", "<leader>zM", "zM", { desc = "Close all folds" })
+vim.keymap.set("n", "<leader>zf", toggle_fold_block, { desc = "Fold/unfold current block" })
+vim.keymap.set("n", "<leader>zo", "zR", { desc = "Open all folds" })
+vim.keymap.set("n", "<leader>zc", "zM", { desc = "Close all folds" })
 
--- Clear search highlight
-vim.keymap.set("n", "<leader>h", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+-- Diagnostic navigation (under <leader>d)
+vim.keymap.set("n", "<leader>dn", "<cmd>lua vim.diagnostic.goto_next()<CR>", { desc = "Next diagnostic" })
+vim.keymap.set("n", "<leader>dp", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { desc = "Previous diagnostic" })
 
--- Select all
-vim.keymap.set("n", "<C-a>", "ggVG", { desc = "Select all" })
+-- Clear search highlight (under <leader>h group, double-tap)
+vim.keymap.set("n", "<leader>hh", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+
+-- Jump between highlighted word references
+vim.keymap.set("n", "]w", function()
+	require("snacks.words").jump(1)
+end, { desc = "Next word reference" })
+vim.keymap.set("n", "[w", function()
+	require("snacks.words").jump(-1)
+end, { desc = "Previous word reference" })

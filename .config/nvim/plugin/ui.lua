@@ -17,9 +17,35 @@ require("lazyload").on_vim_enter(function()
 	require("which-key").add({
 		{ "<leader>f", group = "Find", icon = "" },
 		{ "<leader>g", group = "Git" },
+		{ "<leader>d", group = "Diagnostic" },
 		{ "<leader>m", group = "Format" },
 		{ "<leader>h", group = "Hunk", icon = "" },
+		{ "<leader>l", group = "LSP" },
 		{ "<leader>z", group = "Fold" },
+	})
+
+	-- Add individual mappings to which-key groups
+	require("which-key").add({
+		{ "<leader>zf", desc = "Fold/unfold current block" },
+		{ "<leader>kk", desc = "Show all keymaps" },
+		{ "<leader>zo", desc = "Open all folds" },
+		{ "<leader>zc", desc = "Close all folds" },
+		{ "<leader>hh", desc = "Clear search highlight" },
+		{ "<leader>dn", desc = "Next diagnostic" },
+		{ "<leader>dp", desc = "Previous diagnostic" },
+		{ "<leader>hj", desc = "Next hunk" },
+		{ "<leader>hk", desc = "Previous hunk" },
+		{ "<leader>fm", desc = "Keymaps" },
+		{ "<leader>fz", desc = "Recent files" },
+		{ "<leader>fc", desc = "Colorschemes" },
+		{ "<leader>fs", desc = "LSP symbols" },
+		{ "<leader>fe", desc = "Go to definition" },
+		{ "<leader>fi", desc = "Go to implementation" },
+		{ "<leader>fk", desc = "Hover documentation" },
+		{ "<leader>ls", desc = "LSP symbols" },
+		{ "<leader>le", desc = "Go to definition" },
+		{ "<leader>li", desc = "Go to implementation" },
+		{ "<leader>lk", desc = "Hover documentation" },
 	})
 
 	-- 3. nvim-colorizer.lua — inline hex/color swatches (CSS only)
@@ -73,8 +99,7 @@ require("lazyload").on_vim_enter(function()
 				opts.buffer = bufnr
 				vim.keymap.set(mode, l, r, opts)
 			end
-			map("n", "]h", gs.next_hunk, { desc = "Next hunk" })
-			map("n", "[h", gs.prev_hunk, { desc = "Previous hunk" })
+			-- Hunk nav moved to <leader>hn / <leader>hp (global in config.lua)
 		end,
 	})
 
@@ -193,6 +218,9 @@ require("lazyload").on_vim_enter(function()
 		filesystem_watchers = {
 			enable = false,
 		},
+		update_focused_file = {
+			enable = true,
+		},
 	})
 
 	-- Refresh nvim-tree after saving any file
@@ -233,4 +261,5 @@ require("lazyload").on_vim_enter(function()
 	vim.pack.add({
 		{ src = "https://github.com/wakatime/vim-wakatime" },
 	})
+
 end)

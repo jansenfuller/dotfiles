@@ -89,7 +89,7 @@ require("lazyload").on_vim_enter(function()
       },
     },
     sources = {
-      default = { "lsp", "path", "snippets", "buffer" },
+      default = { "lsp", "path", "buffer" },
     },
     fuzzy = {
       implementation = "prefer_rust",
@@ -108,8 +108,6 @@ require("lazyload").on_vim_enter(function()
       vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
       vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
-      vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-      vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
     end,
   })
 
