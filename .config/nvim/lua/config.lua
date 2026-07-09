@@ -46,8 +46,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#101112", bg = "#B59CD8" }) -- purple
 		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#101112", bg = "#D8C27A" }) -- yellow
 		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#FDFEFF", bg = "#B27B78" }) -- red
-		-- LSP indicator: active = green, no LSP = dim gray
-		vim.api.nvim_set_hl(0, "MiniStatuslineNoLSP", { fg = "#586270", bg = "#101112" }) -- muted, clearly inactive
+
 		-- Tabline: brighter selected tab
 		vim.api.nvim_set_hl(0, "TabLine", { fg = "#798494", bg = "#282C33" })
 		vim.api.nvim_set_hl(0, "TabLineSel", { fg = "#FDFEFF", bg = "#383E47" })
