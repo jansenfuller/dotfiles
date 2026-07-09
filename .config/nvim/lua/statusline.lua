@@ -41,7 +41,10 @@ end
 function M.active()
 	local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
 	local git = MiniStatusline.section_git({ trunc_width = 75 })
-	local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
+	local diagnostics = MiniStatusline.section_diagnostics({
+		trunc_width = 75,
+		signs = { ERROR = "E", WARN = "W", INFO = "I", HINT = "I" },
+	})
 
 	-- Path relative to project root
 	local filename = vim.fn.expand("%:p")
