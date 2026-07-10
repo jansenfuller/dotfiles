@@ -108,6 +108,8 @@ require("lazyload").on_vim_enter(function()
       vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
       vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+      -- Inlay hints: show inferred types for TypeScript + Rust
+      vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
     end,
   })
 

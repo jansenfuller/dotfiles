@@ -21,7 +21,15 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>m", group = "Format" },
 		{ "<leader>h", group = "Hunk", icon = "" },
 		{ "<leader>l", group = "LSP" },
+		{ "<leader>t", group = "Test" },
 		{ "<leader>z", group = "Fold" },
+	})
+
+	require("which-key").add({
+		{ "<leader>tr", desc = "Run nearest test" },
+		{ "<leader>tf", desc = "Run test file" },
+		{ "<leader>ts", desc = "Test summary" },
+		{ "<leader>to", desc = "Test output" },
 	})
 
 	-- Add individual mappings to which-key groups
@@ -124,6 +132,16 @@ require("lazyload").on_vim_enter(function()
 		set_vim_settings = true,
 		content = {
 			active = require("statusline").active,
+		},
+	})
+
+	-- mini.comment — gc to toggle comment (built into mini.nvim)
+	require("mini.comment").setup({
+		mappings = {
+			comment = "gc",
+			comment_line = "gcc",
+			comment_visual = "gc",
+			textobject = "gc",
 		},
 	})
 

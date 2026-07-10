@@ -46,6 +46,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#101112", bg = "#B59CD8" }) -- purple
 		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#101112", bg = "#D8C27A" }) -- yellow
 		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#FDFEFF", bg = "#B27B78" }) -- red
+		-- Inlay hints: subtle gray for TS type annotations / Rust lifetime elisions
+		vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#586270", bg = "#101112" })
 
 		-- Tabline: brighter selected tab
 		vim.api.nvim_set_hl(0, "TabLine", { fg = "#798494", bg = "#282C33" })
