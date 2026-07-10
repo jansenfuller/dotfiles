@@ -171,7 +171,7 @@ require("lazyload").on_vim_enter(function()
 		},
 	})
 
-	-- 9. FTerm.nvim — floating terminal (Alt-i, persistent session)
+	-- 9. FTerm.nvim — floating terminal (<leader>i, persistent session)
 	vim.pack.add({
 		{ src = "https://github.com/numToStr/FTerm.nvim" },
 	})
@@ -183,10 +183,10 @@ require("lazyload").on_vim_enter(function()
 			width = 0.53,
 		},
 	})
-	vim.keymap.set("n", "<A-i>", function()
+	vim.keymap.set("n", "<leader>i", function()
 		FTerm:toggle()
 	end, { desc = "Toggle terminal" })
-	vim.keymap.set("t", "<A-i>", function()
+	vim.keymap.set("t", "<leader>i", function()
 		FTerm:toggle()
 	end, { desc = "Toggle terminal" })
 

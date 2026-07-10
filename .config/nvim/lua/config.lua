@@ -48,6 +48,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#FDFEFF", bg = "#B27B78" }) -- red
 		-- Inlay hints: subtle gray for TS type annotations / Rust lifetime elisions
 		vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#586270", bg = "#101112" })
+		-- Snacks picker: directory path readable (midpoint between bg #101112 and white #FDFEFF)
+		vim.api.nvim_set_hl(0, "SnacksPickerDir", { fg = "#878889" })
 
 		-- Tabline: brighter selected tab
 		vim.api.nvim_set_hl(0, "TabLine", { fg = "#798494", bg = "#282C33" })
@@ -142,8 +144,38 @@ end, { desc = "Colorschemes" })
 vim.keymap.set("n", "<leader>fs", function()
 	Snacks.picker.lsp_symbols()
 end, { desc = "LSP symbols" })
-vim.keymap.set("n", "<leader>le", vim.lsp.buf.definition, { desc = "Go to definition" })
-vim.keymap.set("n", "<leader>li", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+-- Safe LSP goto: blocks navigation into external packages
+local external_dirs = { "node_modules", "vendor/bundle", "vendor/cache" }
+local function safe_goto(method)
+	vim.lsp.buf_request(0, method, {}, function(err, result, ctx)
+		if err or not result then
+			if err then
+				vim.notify("LSP error: " .. err.message, vim.log.levels.ERROR)
+			end
+			return
+		end
+		local items = type(result) == "table" and result or { result }
+		local uri = items[1].uri or items[1].targetUri
+		if not uri then
+			return
+		end
+		local path = vim.uri_to_fname(uri)
+		for _, dir in ipairs(external_dirs) do
+			if path:find(dir, 1, true) then
+				vim.notify("External package — " .. dir, vim.log.levels.WARN)
+				return
+			end
+		end
+		-- Navigate to the first valid result
+		vim.lsp.util.jump_to_location(items[1], ctx.client_id or 0)
+	end)
+end
+vim.keymap.set("n", "<leader>ld", function()
+	safe_goto("textDocument/definition")
+end, { desc = "Go to definition" })
+vim.keymap.set("n", "<leader>li", function()
+	safe_goto("textDocument/implementation")
+end, { desc = "Go to implementation" })
 vim.keymap.set("n", "<leader>lk", vim.lsp.buf.hover, { desc = "Hover documentation" })
 vim.keymap.set("n", "<leader>ls", function()
 	Snacks.picker.lsp_symbols()

@@ -37,6 +37,27 @@ require("lazyload").on_vim_enter(function()
           },
         })
       end,
+      -- Find TypeScript: local node_modules first, then global npm
+      ts_ls = function()
+        require("lspconfig").ts_ls.setup({
+          on_new_config = function(config, new_root_dir)
+            local local_ts = vim.fs.joinpath(new_root_dir, "node_modules", "typescript", "lib")
+            if vim.fn.isdirectory(local_ts) == 1 then
+              config.settings = vim.tbl_extend("force", config.settings or {}, {
+                tsserver = { path = local_ts },
+              })
+              return
+            end
+            local global_npm = vim.fn.systemlist("npm root -g")[1] or ""
+            local global_ts = vim.fs.joinpath(global_npm, "typescript")
+            if vim.fn.isdirectory(global_ts) == 1 then
+              config.settings = vim.tbl_extend("force", config.settings or {}, {
+                tsserver = { path = global_ts },
+              })
+            end
+          end,
+        })
+      end,
       -- Default: use lspconfig defaults for all other servers
       function(server_name)
         require("lspconfig")[server_name].setup({})
