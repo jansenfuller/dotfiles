@@ -1,14 +1,6 @@
 require("lazyload").on_vim_enter(function()
 	-- ═══════════════════════════════════════════════════════════════
-	-- 1. nvim-surround — ys / cs / ds for tags, brackets, quotes
-	-- ═══════════════════════════════════════════════════════════════
-	vim.pack.add({
-		{ src = "https://github.com/kylechui/nvim-surround" },
-	})
-	require("nvim-surround").setup({})
-
-	-- ═══════════════════════════════════════════════════════════════
-	-- 2. neotest — test runner for Rust and Ruby
+	-- 1. neotest — test runner for Rust and Ruby
 	-- ═══════════════════════════════════════════════════════════════
 	vim.pack.add({
 		{ src = "https://github.com/nvim-neotest/neotest" },

@@ -144,6 +144,9 @@ end, { desc = "Colorschemes" })
 vim.keymap.set("n", "<leader>fs", function()
 	Snacks.picker.lsp_symbols()
 end, { desc = "LSP symbols" })
+vim.keymap.set("n", "<leader>fp", function()
+	Snacks.picker.projects({ dev = { "~/dev" } })
+end, { desc = "Switch project" })
 -- Safe LSP goto: blocks navigation into external packages
 local external_dirs = { "node_modules", "vendor/bundle", "vendor/cache" }
 local function safe_goto(method)
@@ -191,6 +194,11 @@ end, { desc = "Git branches" })
 vim.keymap.set("n", "<leader>gc", function()
 	Snacks.picker.git_log()
 end, { desc = "Git commits" })
+
+-- Undo history (Snacks picker)
+vim.keymap.set("n", "<leader>u", function()
+	Snacks.picker.undo()
+end, { desc = "Undo history" })
 
 -- Gitsigns hunks (under <leader>h)
 vim.keymap.set("n", "<leader>hs", "<cmd>lua require'gitsigns'.stage_hunk()<CR>", { desc = "Stage hunk" })
@@ -245,8 +253,9 @@ vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buff
 vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
 
 -- File explorer
-vim.keymap.set("n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
-vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
+vim.keymap.set("n", "<leader>e", function()
+	Snacks.explorer()
+end, { desc = "Toggle file explorer" })
 
 -- Split management
 vim.keymap.set("n", "<leader>v", "<cmd>vsplit<CR>", { desc = "Vertical split" })

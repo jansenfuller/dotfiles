@@ -1,5 +1,5 @@
 require("lazyload").on_vim_enter(function()
-	-- 1. nvim-web-devicons — MUST load first (needed by nvim-tree)
+	-- 1. nvim-web-devicons — MUST load first (needed by bufferline + snacks)
 	vim.pack.add({
 		{ src = "https://github.com/nvim-tree/nvim-web-devicons" },
 	})
@@ -45,6 +45,7 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>hk", desc = "Previous hunk" },
 		{ "<leader>fm", desc = "Keymaps" },
 		{ "<leader>fz", desc = "Recent files" },
+		{ "<leader>fp", desc = "Switch project" },
 		{ "<leader>fc", desc = "Colorschemes" },
 		{ "<leader>fs", desc = "LSP symbols" },
 		{ "<leader>ls", desc = "LSP symbols" },
@@ -145,6 +146,19 @@ require("lazyload").on_vim_enter(function()
 		},
 	})
 
+	-- mini.surround — ys / cs / ds (replaces nvim-surround)
+	require("mini.surround").setup({
+		mappings = {
+			add = "ys",
+			delete = "ds",
+			find = "sf",
+			find_left = "sF",
+			highlight = "sh",
+			replace = "cs",
+			update_n_lines = "sn",
+		},
+	})
+
 	-- 8. bufferline.nvim — NvChad-style tabufline
 	local bg_lighter = "#2a2b2e"
 	vim.pack.add({
@@ -164,88 +178,19 @@ require("lazyload").on_vim_enter(function()
 			show_close_icon = false,
 			color_mode = "buffer",
 			enforce_regular_tabs = false,
-			offsets = {
-				{ filetype = "NvimTree", text = "Explorer", highlight = "Directory", padding = 1 },
-				{ filetype = "FTerm", text = "Terminal", highlight = "Directory", padding = 1 },
-			},
+			offsets = {}
 		},
 	})
 
-	-- 9. FTerm.nvim — floating terminal (<leader>i, persistent session)
-	vim.pack.add({
-		{ src = "https://github.com/numToStr/FTerm.nvim" },
-	})
-	local FTerm = require("FTerm")
-	FTerm.setup({
-		border = "rounded",
-		dimensions = {
-			height = 0.53,
-			width = 0.53,
-		},
-	})
+	-- 9. Terminal (snacks.terminal) — floating toggle via <leader>i
 	vim.keymap.set("n", "<leader>i", function()
-		FTerm:toggle()
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded" } })
 	end, { desc = "Toggle terminal" })
-	vim.keymap.set("t", "<leader>i", function()
-		FTerm:toggle()
+	vim.keymap.set("t", "<A-i>", function()
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded" } })
 	end, { desc = "Toggle terminal" })
 
-	-- 10. nvim-tree.lua — file explorer (tuned for speed, git-aware)
-	vim.pack.add({
-		{ src = "https://github.com/nvim-tree/nvim-tree.lua" },
-	})
-	require("nvim-tree").setup({
-		sort = {
-			sorter = "name",
-			folders_first = true,
-		},
-		view = {
-			width = 30,
-			side = "left",
-		},
-		renderer = {
-			group_empty = true,
-			highlight_git = true,
-			icons = {
-				show = {
-					git = true,
-					folder = true,
-					file = true,
-					folder_arrow = true,
-				},
-			},
-		},
-		git = {
-			enable = true,
-			ignore = false,
-		},
-		filters = {
-			dotfiles = false,
-			custom = { "^\\.git$" },
-		},
-		actions = {
-			open_file = {
-				quit_on_open = false,
-				resize_window = true,
-			},
-		},
-		-- Disable filesystem watchers for speed
-		filesystem_watchers = {
-			enable = false,
-		},
-		update_focused_file = {
-			enable = true,
-		},
-	})
-
-	-- Refresh nvim-tree after saving any file
-	vim.api.nvim_create_autocmd("BufWritePost", {
-		callback = function()
-			pcall(function() require("nvim-tree.api").tree.reload() end)
-		end,
-	})
-
-	-- 11. Vim Wrapped
+	-- 10. Vim Wrapped
 	vim.pack.add({
 		{ src = "https://github.com/nvzone/volt" },
 	})
