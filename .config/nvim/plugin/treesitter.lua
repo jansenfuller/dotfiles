@@ -26,16 +26,13 @@ require("lazyload").on_vim_enter(function()
 		typescriptreact = { "tsx", "typescript", "javascript" },
 		javascriptreact = { "tsx", "javascript" },
 	}
-	-- Filetypes that get derived parsers (e.g. vue → html)
-	local derived = {}
-
 	local installed = {}
 
 	vim.api.nvim_create_autocmd("FileType", {
-		pattern = vim.tbl_keys(vim.tbl_extend("force", ft_parsers, derived)),
+		pattern = vim.tbl_keys(ft_parsers),
 		callback = function(ev)
 			local ft = vim.bo[ev.buf].filetype
-			local parsers = ft_parsers[ft] or (derived[ft] and ft_parsers[derived[ft]])
+			local parsers = ft_parsers[ft]
 			if parsers and not installed[ft] then
 				installed[ft] = true
 				require("nvim-treesitter").install(parsers)

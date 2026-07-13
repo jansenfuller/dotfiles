@@ -17,6 +17,7 @@ require("lazyload").on_vim_enter(function()
 	require("which-key").add({
 		{ "<leader>f", group = "Find", icon = "" },
 		{ "<leader>g", group = "Git" },
+		{ "<leader>b", group = "Buffer" },
 		{ "<leader>d", group = "Diagnostic" },
 		{ "<leader>m", group = "Format" },
 		{ "<leader>h", group = "Hunk", icon = "" },
@@ -25,46 +26,37 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>z", group = "Fold" },
 	})
 
-	require("which-key").add({
-		{ "<leader>tr", desc = "Run nearest test" },
-		{ "<leader>tf", desc = "Run test file" },
-		{ "<leader>ts", desc = "Test summary" },
-		{ "<leader>to", desc = "Test output" },
-	})
-
 	-- Add individual mappings to which-key groups
 	require("which-key").add({
 		{ "<leader>zf", desc = "Fold/unfold current block" },
 		{ "<leader>kk", desc = "Show all keymaps" },
+		{ "<leader>tn", desc = "Run nearest test" },
+		{ "<leader>tf", desc = "Run test file" },
+		{ "<leader>ts", desc = "Test summary" },
+		{ "<leader>to", desc = "Test output" },
 		{ "<leader>zo", desc = "Open all folds" },
 		{ "<leader>zc", desc = "Close all folds" },
 		{ "<leader>hh", desc = "Clear search highlight" },
 		{ "<leader>dn", desc = "Next diagnostic" },
 		{ "<leader>dp", desc = "Previous diagnostic" },
+		{ "<leader>dt", desc = "Toggle diagnostics" },
 		{ "<leader>hj", desc = "Next hunk" },
 		{ "<leader>hk", desc = "Previous hunk" },
-		{ "<leader>fm", desc = "Keymaps" },
 		{ "<leader>fz", desc = "Recent files" },
 		{ "<leader>fp", desc = "Switch project" },
 		{ "<leader>fc", desc = "Colorschemes" },
-		{ "<leader>fs", desc = "LSP symbols" },
+		{ "<leader>fh", desc = "Help tags" },
 		{ "<leader>ls", desc = "LSP symbols" },
-		{ "<leader>le", desc = "Go to definition" },
+		{ "<leader>ld", desc = "Go to definition" },
 		{ "<leader>li", desc = "Go to implementation" },
 		{ "<leader>lk", desc = "Hover documentation" },
-	})
-
-	-- 3. nvim-colorizer.lua — inline hex/color swatches (CSS only)
-	vim.pack.add({
-		{ src = "https://github.com/NvChad/nvim-colorizer.lua" },
-	})
-	require("colorizer").setup({
-		filetypes = { "css", "scss", "sass", "less", "html" },
-		options = {
-			parsers = { css = true },
-			display = { mode = "background" },
-		},
-		lazy_load = true,
+		{ "<leader>lr", desc = "LSP references" },
+		{ "<leader>ln", desc = "Rename symbol" },
+		{ "<leader>lc", desc = "Code action" },
+		{ "<leader>bd", desc = "Close buffer" },
+		{ "<leader>bn", desc = "Next buffer" },
+		{ "<leader>bp", desc = "Previous buffer" },
+		{ "<leader>fw", desc = "Grep word under cursor" },
 	})
 
 	-- 4. blink.indent — fast indent guides
@@ -95,18 +87,10 @@ require("lazyload").on_vim_enter(function()
 		numhl = true,
 		linehl = false,
 		word_diff = false,
-		watch_gitdir = { interval = 1000 },
+		watch_gitdir = { interval = 5000 },
 		current_line_blame = false, -- disabled: causes blame lookups per line
 		update_debounce = 500,
-		on_attach = function(bufnr)
-			local gs = package.loaded.gitsigns
-			local function map(mode, l, r, opts)
-				opts = opts or {}
-				opts.buffer = bufnr
-				vim.keymap.set(mode, l, r, opts)
-			end
-			-- Hunk nav moved to <leader>hn / <leader>hp (global in config.lua)
-		end,
+
 	})
 
 	-- 6. tiny-inline-diagnostic.nvim — inline diagnostics
@@ -186,40 +170,38 @@ require("lazyload").on_vim_enter(function()
 	vim.keymap.set("n", "<leader>i", function()
 		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded" } })
 	end, { desc = "Toggle terminal" })
+	vim.keymap.set("n", "<A-i>", function()
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded" } })
+	end, { desc = "Toggle terminal" })
 	vim.keymap.set("t", "<A-i>", function()
 		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded" } })
 	end, { desc = "Toggle terminal" })
 
-	-- 10. Vim Wrapped
-	vim.pack.add({
-		{ src = "https://github.com/nvzone/volt" },
-	})
-	vim.pack.add({
-		{ src = "https://github.com/aikhe/wrapped.nvim" },
-	})
-
-	-- 12. Smart Paste
-	vim.pack.add({
-		{ src = "https://github.com/nemanjamalesija/smart-paste.nvim" },
-	})
-
-	-- 13. auto-save.nvim — auto-save on InsertLeave + TextChanged
+	-- 10. auto-save.nvim — auto-save on InsertLeave
 	vim.pack.add({
 		{ src = "https://github.com/pocco81/auto-save.nvim" },
 	})
 	require("auto-save").setup({
 		enabled = true,
 		execution_message = { message = "" },
-		events = { "InsertLeave", "TextChanged" },
+		events = { "InsertLeave" },
 		conditions = {
 			exists = true,
 			filetype_is_not = {},
 		},
 	})
 
-	-- 14. wakatime/vim-wakatime — automatic time tracking
+	-- 11. wakatime/vim-wakatime — automatic time tracking
 	vim.pack.add({
 		{ src = "https://github.com/wakatime/vim-wakatime" },
 	})
 
+	-- 12. wrapped.nvim — year-in-review dashboard (:NvimWrapped / :WrappedNvim)
+	vim.pack.add({
+		{ src = "https://github.com/nvzone/volt" },
+	})
+	vim.pack.add({
+		{ src = "https://github.com/aikhe/wrapped.nvim" },
+	})
+	vim.keymap.set("n", "<leader>ow", "<cmd>WrappedNvim<CR>", { desc = "Wrapped dashboard" })
 end)

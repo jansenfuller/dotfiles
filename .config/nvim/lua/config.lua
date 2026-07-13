@@ -1,6 +1,6 @@
 -- Line numbers
 vim.opt.number = true
-vim.opt.relativenumber = true -- disabled: scroll jitter over SSH
+-- vim.opt.relativenumber = true  -- disabled: scroll jitter over SSH
 
 -- Tabs & indentation
 vim.opt.tabstop = 4
@@ -106,12 +106,11 @@ vim.diagnostic.config({
 -- Format on save (via LSP)
 vim.api.nvim_create_autocmd("BufWritePre", {
 	callback = function()
-		-- Force unix line endings
-		vim.opt.fileformat = "unix"
-		-- Format via LSP
-		local clients = vim.lsp.get_clients({ bufnr = 0 })
+		local bufnr = vim.api.nvim_get_current_buf()
+		vim.bo[bufnr].fileformat = "unix"
+		local clients = vim.lsp.get_clients({ bufnr = bufnr })
 		if #clients > 0 then
-			pcall(vim.lsp.buf.format, { async = false, timeout_ms = 10000 })
+			pcall(vim.lsp.buf.format, { bufnr = bufnr, async = true, timeout_ms = 10000 })
 		end
 	end,
 })
@@ -132,54 +131,27 @@ end, { desc = "Help tags" })
 vim.keymap.set("n", "<leader>fd", function()
 	Snacks.picker.diagnostics()
 end, { desc = "Diagnostics" })
-vim.keymap.set("n", "<leader>fm", function()
-	Snacks.picker.keymaps()
-end, { desc = "Keymaps" })
+
 vim.keymap.set("n", "<leader>fz", function()
 	Snacks.picker.recent()
 end, { desc = "Recent files" })
 vim.keymap.set("n", "<leader>fc", function()
 	Snacks.picker.colorschemes()
 end, { desc = "Colorschemes" })
-vim.keymap.set("n", "<leader>fs", function()
-	Snacks.picker.lsp_symbols()
-end, { desc = "LSP symbols" })
+
 vim.keymap.set("n", "<leader>fp", function()
 	Snacks.picker.projects({ dev = { "~/dev" } })
 end, { desc = "Switch project" })
--- Safe LSP goto: blocks navigation into external packages
-local external_dirs = { "node_modules", "vendor/bundle", "vendor/cache" }
-local function safe_goto(method)
-	vim.lsp.buf_request(0, method, {}, function(err, result, ctx)
-		if err or not result then
-			if err then
-				vim.notify("LSP error: " .. err.message, vim.log.levels.ERROR)
-			end
-			return
-		end
-		local items = type(result) == "table" and result or { result }
-		local uri = items[1].uri or items[1].targetUri
-		if not uri then
-			return
-		end
-		local path = vim.uri_to_fname(uri)
-		for _, dir in ipairs(external_dirs) do
-			if path:find(dir, 1, true) then
-				vim.notify("External package — " .. dir, vim.log.levels.WARN)
-				return
-			end
-		end
-		-- Navigate to the first valid result
-		vim.lsp.util.jump_to_location(items[1], ctx.client_id or 0)
-	end)
-end
-vim.keymap.set("n", "<leader>ld", function()
-	safe_goto("textDocument/definition")
-end, { desc = "Go to definition" })
-vim.keymap.set("n", "<leader>li", function()
-	safe_goto("textDocument/implementation")
-end, { desc = "Go to implementation" })
+vim.keymap.set("n", "<leader>fw", function()
+	Snacks.picker.grep({ args = { "--hidden", "-w", vim.fn.expand("<cword>") } })
+end, { desc = "Grep word under cursor" })
+vim.keymap.set("n", "<leader>ld", vim.lsp.buf.definition, { desc = "Go to definition" })
+vim.keymap.set("n", "<leader>li", vim.lsp.buf.implementation, { desc = "Go to implementation" })
 vim.keymap.set("n", "<leader>lk", vim.lsp.buf.hover, { desc = "Hover documentation" })
+vim.keymap.set("n", "<leader>lr", vim.lsp.buf.references, { desc = "LSP references" })
+vim.keymap.set("n", "<leader>lm", function()
+	Snacks.rename.file()
+end, { desc = "Rename file" })
 vim.keymap.set("n", "<leader>ls", function()
 	Snacks.picker.lsp_symbols()
 end, { desc = "LSP symbols" })
@@ -212,19 +184,9 @@ vim.keymap.set("n", "<leader>hk", "<cmd>lua require'gitsigns'.prev_hunk()<CR>", 
 vim.keymap.set("n", "<leader>mf", function()
 	vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
 end, { desc = "Format current file" })
-vim.keymap.set("n", "<leader>ma", function()
-	local count = 0
-	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-		if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].modified then
-			pcall(vim.lsp.buf.format, { bufnr = bufnr, async = true, timeout_ms = 10000 })
-			count = count + 1
-		end
-	end
-	vim.notify("Formatted " .. count .. " buffer(s)", vim.log.levels.INFO)
-end, { desc = "Format all modified buffers" })
 
--- Close buffer
-vim.keymap.set("n", "<leader>x", function()
+-- Buffer operations (under <leader>b)
+vim.keymap.set("n", "<leader>bd", function()
 	local bufnr = vim.api.nvim_get_current_buf()
 	local listed = vim.tbl_filter(function(b)
 		return vim.bo[b].buflisted
@@ -249,19 +211,16 @@ vim.keymap.set("n", "<leader>x", function()
 end, { desc = "Close buffer" })
 
 -- Buffer navigation (bufferline)
-vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<leader>bn", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
 
 -- File explorer
-vim.keymap.set("n", "<leader>e", function()
-	Snacks.explorer()
-end, { desc = "Toggle file explorer" })
+vim.keymap.set("n", "<leader>e", function() Snacks.explorer() end, { desc = "Toggle file explorer" })
 
 -- Split management
 vim.keymap.set("n", "<leader>v", "<cmd>vsplit<CR>", { desc = "Vertical split" })
-vim.keymap.set("n", "<leader>s", "<cmd>split<CR>", { desc = "Horizontal split" })
+vim.keymap.set("n", "<leader>h", "<cmd>split<CR>", { desc = "Horizontal split" })
 vim.keymap.set("n", "<leader>q", "<C-w>c", { desc = "Close split" })
-vim.keymap.set("n", "<C-w>", "<C-w>c", { desc = "Close split" })
 
 -- Window navigation via Ctrl+h/j/k/l (move between splits)
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Window left" })
@@ -296,9 +255,16 @@ vim.keymap.set("n", "<leader>zc", "zM", { desc = "Close all folds" })
 -- Diagnostic navigation (under <leader>d)
 vim.keymap.set("n", "<leader>dn", "<cmd>lua vim.diagnostic.goto_next()<CR>", { desc = "Next diagnostic" })
 vim.keymap.set("n", "<leader>dp", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { desc = "Previous diagnostic" })
+vim.keymap.set("n", "<leader>dt", function()
+	vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+end, { desc = "Toggle diagnostics" })
 
 -- Clear search highlight (under <leader>h group, double-tap)
 vim.keymap.set("n", "<leader>hh", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+
+-- Quickfix navigation
+vim.keymap.set("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix" })
+vim.keymap.set("n", "[q", "<cmd>cprev<CR>", { desc = "Previous quickfix" })
 
 -- Jump between highlighted word references
 vim.keymap.set("n", "]w", function()

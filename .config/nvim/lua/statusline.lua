@@ -1,5 +1,8 @@
 local M = {}
 
+-- Cached values (updated via autocmds, not on every redraw)
+local cache = setmetatable({}, { __mode = "v" })
+
 local function lsp_name()
 	local clients = vim.lsp.get_clients({ bufnr = 0 })
 	if #clients == 0 then
@@ -38,6 +41,35 @@ local function format_size(bytes)
 	return ("%.1fMB"):format(bytes / (1024 * 1024))
 end
 
+-- Update cached values only when they change
+local group = vim.api.nvim_create_augroup("StatuslineCache", { clear = true })
+
+vim.api.nvim_create_autocmd({ "BufEnter", "LspAttach", "LspDetach" }, {
+	group = group,
+	callback = function(ev)
+		local buf = ev.buf
+		cache[buf] = cache[buf] or {}
+		cache[buf].lsp = lsp_name()
+	end,
+})
+
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost" }, {
+	group = group,
+	callback = function(ev)
+		local buf = ev.buf
+		local path = vim.api.nvim_buf_get_name(buf)
+		cache[buf] = cache[buf] or {}
+		cache[buf].size = format_size(path and vim.fn.getfsize(path) or 0)
+	end,
+})
+
+vim.api.nvim_create_autocmd("BufWipeout", {
+	group = group,
+	callback = function(ev)
+		cache[ev.buf] = nil
+	end,
+})
+
 function M.active()
 	local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
 	local git = MiniStatusline.section_git({ trunc_width = 75 })
@@ -69,14 +101,14 @@ function M.active()
 	local groups = {
 		{ hl = mode_hl, strings = { mode } },
 		{ hl = "MiniStatuslineFilename", strings = { git .. diff, filename } },
+		"%=",
 	}
 
+	local right = {}
 	-- Right side: only shown when LSP is attached
-	local lsp = lsp_name()
-	if lsp then
-		local right = {}
-		table.insert(right, { hl = "MiniStatuslineModeNormal", strings = { lsp } })
-		-- Diagnostics count
+	local buf_cache = cache[vim.api.nvim_get_current_buf()] or {}
+	if buf_cache.lsp then
+		table.insert(right, { hl = "MiniStatuslineModeNormal", strings = { buf_cache.lsp } })
 		table.insert(right, { hl = "MiniStatuslineFileinfo", strings = { diagnostics } })
 		local enc = vim.bo.fenc ~= "" and vim.bo.fenc:upper() or nil
 		if enc then
@@ -86,15 +118,15 @@ function M.active()
 		if ff ~= "" then
 			table.insert(right, { hl = "MiniStatuslineFileinfo", strings = { ff } })
 		end
-		local size = format_size(vim.fn.getfsize(vim.fn.expand("%:p")))
-		if size ~= "" then
-			table.insert(right, { hl = "MiniStatuslineFileinfo", strings = { size } })
+		if buf_cache.size and buf_cache.size ~= "" then
+			table.insert(right, { hl = "MiniStatuslineFileinfo", strings = { buf_cache.size } })
 		end
+	end
+	-- Always show cursor position
+	table.insert(right, { hl = "MiniStatuslineFileinfo", strings = { MiniStatusline.section_fileinfo({ trunc_width = 120 }) } })
 
-		table.insert(groups, "%=")
-		for _, g in ipairs(right) do
-			table.insert(groups, g)
-		end
+	for _, g in ipairs(right) do
+		table.insert(groups, g)
 	end
 
 	return MiniStatusline.combine_groups(groups)
