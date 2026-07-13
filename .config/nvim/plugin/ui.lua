@@ -163,19 +163,19 @@ require("lazyload").on_vim_enter(function()
 			show_close_icon = false,
 			color_mode = "buffer",
 			enforce_regular_tabs = false,
-			offsets = {}
+			offsets = {{ filetype = "snacks_picker", text = "Explorer", highlight = "Directory", padding = 1 }}
 		},
 	})
 
 	-- 9. Terminal (snacks.terminal) — floating toggle via <leader>i
 	vim.keymap.set("n", "<leader>i", function()
-		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.45, height = 0.45 } })
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.49, height = 0.49 } })
 	end, { desc = "Toggle terminal" })
 	vim.keymap.set("n", "<A-i>", function()
-		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.45, height = 0.45 } })
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.49, height = 0.49 } })
 	end, { desc = "Toggle terminal" })
 	vim.keymap.set("t", "<A-i>", function()
-		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.45, height = 0.45 } })
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.49, height = 0.49 } })
 	end, { desc = "Toggle terminal" })
 
 	-- 10. wakatime/vim-wakatime — automatic time tracking

@@ -1,6 +1,6 @@
 -- Line numbers
 vim.opt.number = true
--- vim.opt.relativenumber = true  -- disabled: scroll jitter over SSH
+vim.opt.relativenumber = true -- disabled: scroll jitter over SSH
 
 -- Tabs & indentation
 vim.opt.tabstop = 4
@@ -14,8 +14,8 @@ vim.opt.inccommand = "split"
 vim.opt.termguicolors = true
 vim.opt.guifont = "JetBrainsMono Nerd Font Mono:h12"
 vim.opt.laststatus = 3
-vim.opt.showtabline = 1  -- tabline only when >1 buffer
-vim.opt.pumblend = 0 -- no popup transparency (reduces escape sequences)
+vim.opt.showtabline = 1 -- tabline only when >1 buffer
+vim.opt.pumblend = 0    -- no popup transparency (reduces escape sequences)
 vim.opt.mouse = "a"
 vim.opt.clipboard = "unnamedplus"
 vim.opt.fileformat = "unix" -- default to unix line endings
@@ -24,38 +24,38 @@ vim.opt.cursorlineopt = "line"
 
 -- Highlight overrides using crayon palette colors (set after colorscheme via autocmd)
 vim.api.nvim_create_autocmd("ColorScheme", {
-	callback = function()
-		-- Cursor line: subtle highlight using crayon's dark gray (#282C33)
-		vim.api.nvim_set_hl(0, "CursorLine", { bg = "#282C33" })
-		-- Line numbers: as bright as normal text
-		local normal_fg = vim.api.nvim_get_hl(0, { id = vim.api.nvim_get_hl_id_by_name("Normal") }).fg
-		vim.api.nvim_set_hl(0, "LineNr", { fg = normal_fg })
-		-- Window separator: subtle line using crayon's dark gray
-		vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#282C33", bg = "#101112" })
-		-- Git gutter signs: crayon palette colors
-		vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#99AE63" }) -- crayon green
-		vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#D8C27A" }) -- crayon yellow
-		vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#B27B78" }) -- crayon red
-		-- Indent guides: subtle lines, active scope brighter
-		vim.api.nvim_set_hl(0, "BlinkIndent", { fg = "#383E47" }) -- crayon medium dark gray
-		vim.api.nvim_set_hl(0, "BlinkIndentScope", { fg = "#586270" }) -- crayon medium gray
-		-- Statusline: bright text (crayon default is #586270 which is unreadable)
-		vim.api.nvim_set_hl(0, "StatusLine", { fg = "#BCC5D1", bg = "#101112" })
-		-- Statusline mode colors (lualine-style)
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = "#101112", bg = "#99AE63" }) -- green
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeInsert", { fg = "#101112", bg = "#7495B6" }) -- blue
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#101112", bg = "#B59CD8" }) -- purple
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#101112", bg = "#D8C27A" }) -- yellow
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#FDFEFF", bg = "#B27B78" }) -- red
-		-- Inlay hints: subtle gray for TS type annotations / Rust lifetime elisions
-		vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#586270", bg = "#101112" })
-		-- Snacks picker: directory path readable (midpoint between bg #101112 and white #FDFEFF)
-		vim.api.nvim_set_hl(0, "SnacksPickerDir", { fg = "#878889" })
+    callback = function()
+        -- Cursor line: subtle highlight using crayon's dark gray (#282C33)
+        vim.api.nvim_set_hl(0, "CursorLine", { bg = "#282C33" })
+        -- Line numbers: as bright as normal text
+        local normal_fg = vim.api.nvim_get_hl(0, { id = vim.api.nvim_get_hl_id_by_name("Normal") }).fg
+        vim.api.nvim_set_hl(0, "LineNr", { fg = normal_fg })
+        -- Window separator: subtle line using crayon's dark gray
+        vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#282C33", bg = "#101112" })
+        -- Git gutter signs: crayon palette colors
+        vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#99AE63" }) -- crayon green
+        vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#D8C27A" }) -- crayon yellow
+        vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#B27B78" }) -- crayon red
+        -- Indent guides: subtle lines, active scope brighter
+        vim.api.nvim_set_hl(0, "BlinkIndent", { fg = "#383E47" }) -- crayon medium dark gray
+        vim.api.nvim_set_hl(0, "BlinkIndentScope", { fg = "#586270" }) -- crayon medium gray
+        -- Statusline: bright text (crayon default is #586270 which is unreadable)
+        vim.api.nvim_set_hl(0, "StatusLine", { fg = "#BCC5D1", bg = "#101112" })
+        -- Statusline mode colors (lualine-style)
+        vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = "#101112", bg = "#99AE63" }) -- green
+        vim.api.nvim_set_hl(0, "MiniStatuslineModeInsert", { fg = "#101112", bg = "#7495B6" }) -- blue
+        vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#101112", bg = "#B59CD8" }) -- purple
+        vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#101112", bg = "#D8C27A" }) -- yellow
+        vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#FDFEFF", bg = "#B27B78" }) -- red
+        -- Inlay hints: subtle gray for TS type annotations / Rust lifetime elisions
+        vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#586270", bg = "#101112" })
+        -- Snacks picker: directory path readable (midpoint between bg #101112 and white #FDFEFF)
+        vim.api.nvim_set_hl(0, "SnacksPickerDir", { fg = "#878889" })
 
-		-- Tabline: brighter selected tab
-		vim.api.nvim_set_hl(0, "TabLine", { fg = "#798494", bg = "#282C33" })
-		vim.api.nvim_set_hl(0, "TabLineSel", { fg = "#FDFEFF", bg = "#383E47" })
-	end,
+        -- Tabline: brighter selected tab
+        vim.api.nvim_set_hl(0, "TabLine", { fg = "#798494", bg = "#282C33" })
+        vim.api.nvim_set_hl(0, "TabLineSel", { fg = "#FDFEFF", bg = "#383E47" })
+    end,
 })
 vim.opt.signcolumn = "yes" -- dedicated sign column
 vim.opt.sidescrolloff = 8
@@ -81,96 +81,96 @@ vim.opt.foldopen:remove("hor") -- don't open folds on horizontal movement
 vim.opt.updatetime = 750
 vim.opt.timeoutlen = 300 -- leader completion timeout
 vim.opt.ttimeoutlen = 10 -- fast key code processing
-vim.opt.scrolloff = 10 -- keep cursor 10 lines from top/bottom
+vim.opt.scrolloff = 10   -- keep cursor 10 lines from top/bottom
 
 -- Diagnostics
 vim.diagnostic.config({
-	virtual_text = false, -- NO inline text that runs off screen
-	signs = {
-		text = {
-			[vim.diagnostic.severity.ERROR] = "",
-			[vim.diagnostic.severity.WARN] = "",
-			[vim.diagnostic.severity.HINT] = "",
-			[vim.diagnostic.severity.INFO] = "",
-		},
-	},
-	underline = true, -- Squiggly underline stays
-	update_in_insert = false, -- Don't update while typing
-	severity_sort = true, -- Errors before warnings
-	float = {
-		border = "rounded",
-		source = true,
-		header = "",
-	},
+    virtual_text = false, -- NO inline text that runs off screen
+    signs = {
+        text = {
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.WARN] = "",
+            [vim.diagnostic.severity.HINT] = "",
+            [vim.diagnostic.severity.INFO] = "",
+        },
+    },
+    underline = true,      -- Squiggly underline stays
+    update_in_insert = false, -- Don't update while typing
+    severity_sort = true,  -- Errors before warnings
+    float = {
+        border = "rounded",
+        source = true,
+        header = "",
+    },
 })
 
 -- Format on save (via LSP)
 vim.api.nvim_create_autocmd("BufWritePre", {
-	callback = function()
-		local bufnr = vim.api.nvim_get_current_buf()
-		vim.bo[bufnr].fileformat = "unix"
-		local clients = vim.lsp.get_clients({ bufnr = bufnr })
-		if #clients > 0 then
-			pcall(vim.lsp.buf.format, { bufnr = bufnr, async = true, timeout_ms = 10000 })
-		end
-	end,
+    callback = function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        vim.bo[bufnr].fileformat = "unix"
+        local clients = vim.lsp.get_clients({ bufnr = bufnr })
+        if #clients > 0 then
+            pcall(vim.lsp.buf.format, { bufnr = bufnr, async = true, timeout_ms = 10000 })
+        end
+    end,
 })
 
 -- Find (under <leader>f)
 vim.keymap.set("n", "<leader>ff", function()
-	Snacks.picker.files({ hidden = true })
+    Snacks.picker.files({ hidden = true })
 end, { desc = "Find files" })
 vim.keymap.set("n", "<leader>fg", function()
-	Snacks.picker.grep({ args = { "--hidden" } })
+    Snacks.picker.grep({ args = { "--hidden" } })
 end, { desc = "Live grep" })
 vim.keymap.set("n", "<leader>fb", function()
-	Snacks.picker.buffers()
+    Snacks.picker.buffers()
 end, { desc = "Buffers" })
 vim.keymap.set("n", "<leader>fh", function()
-	Snacks.picker.help()
+    Snacks.picker.help()
 end, { desc = "Help tags" })
 vim.keymap.set("n", "<leader>fd", function()
-	Snacks.picker.diagnostics()
+    Snacks.picker.diagnostics()
 end, { desc = "Diagnostics" })
 
 vim.keymap.set("n", "<leader>fz", function()
-	Snacks.picker.recent()
+    Snacks.picker.recent()
 end, { desc = "Recent files" })
 vim.keymap.set("n", "<leader>fc", function()
-	Snacks.picker.colorschemes()
+    Snacks.picker.colorschemes()
 end, { desc = "Colorschemes" })
 
 vim.keymap.set("n", "<leader>fp", function()
-	Snacks.picker.projects({ dev = { "~/dev" } })
+    Snacks.picker.projects({ dev = { "~/dev" } })
 end, { desc = "Switch project" })
 vim.keymap.set("n", "<leader>fw", function()
-	Snacks.picker.grep({ args = { "--hidden", "-w", vim.fn.expand("<cword>") } })
+    Snacks.picker.grep({ args = { "--hidden", "-w", vim.fn.expand("<cword>") } })
 end, { desc = "Grep word under cursor" })
 vim.keymap.set("n", "<leader>ld", vim.lsp.buf.definition, { desc = "Go to definition" })
 vim.keymap.set("n", "<leader>li", vim.lsp.buf.implementation, { desc = "Go to implementation" })
 vim.keymap.set("n", "<leader>lk", vim.lsp.buf.hover, { desc = "Hover documentation" })
 vim.keymap.set("n", "<leader>lr", vim.lsp.buf.references, { desc = "LSP references" })
 vim.keymap.set("n", "<leader>lm", function()
-	Snacks.rename.file()
+    Snacks.rename.file()
 end, { desc = "Rename file" })
 vim.keymap.set("n", "<leader>ls", function()
-	Snacks.picker.lsp_symbols()
+    Snacks.picker.lsp_symbols()
 end, { desc = "LSP symbols" })
 
 -- Git (under <leader>g)
 vim.keymap.set("n", "<leader>gs", function()
-	Snacks.picker.git_status()
+    Snacks.picker.git_status()
 end, { desc = "Git status" })
 vim.keymap.set("n", "<leader>gb", function()
-	Snacks.picker.git_branches()
+    Snacks.picker.git_branches()
 end, { desc = "Git branches" })
 vim.keymap.set("n", "<leader>gc", function()
-	Snacks.picker.git_log()
+    Snacks.picker.git_log()
 end, { desc = "Git commits" })
 
 -- Undo history (Snacks picker)
 vim.keymap.set("n", "<leader>u", function()
-	Snacks.picker.undo()
+    Snacks.picker.undo()
 end, { desc = "Undo history" })
 
 -- Gitsigns hunks (under <leader>h)
@@ -184,32 +184,32 @@ vim.keymap.set("n", "<leader>hk", "<cmd>lua require'gitsigns'.prev_hunk()<CR>", 
 
 -- Formatting (under <leader>m)
 vim.keymap.set("n", "<leader>mf", function()
-	vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
+    vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
 end, { desc = "Format current file" })
 
 -- Buffer operations (under <leader>b)
 vim.keymap.set("n", "<leader>bd", function()
-	local bufnr = vim.api.nvim_get_current_buf()
-	local listed = vim.tbl_filter(function(b)
-		return vim.bo[b].buflisted
-	end, vim.api.nvim_list_bufs())
-	if #listed <= 1 then
-		-- Last buffer: create empty one, then delete current
-		vim.cmd("enew")
-		pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
-	else
-		-- Switch to the next buffer in the list first, then delete
-		local idx
-		for i, b in ipairs(listed) do
-			if b == bufnr then
-				idx = i
-				break
-			end
-		end
-		local next_buf = listed[(idx % #listed) + 1]
-		vim.api.nvim_set_current_buf(next_buf)
-		pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
-	end
+    local bufnr = vim.api.nvim_get_current_buf()
+    local listed = vim.tbl_filter(function(b)
+        return vim.bo[b].buflisted
+    end, vim.api.nvim_list_bufs())
+    if #listed <= 1 then
+        -- Last buffer: create empty one, then delete current
+        vim.cmd("enew")
+        pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
+    else
+        -- Switch to the next buffer in the list first, then delete
+        local idx
+        for i, b in ipairs(listed) do
+            if b == bufnr then
+                idx = i
+                break
+            end
+        end
+        local next_buf = listed[(idx % #listed) + 1]
+        vim.api.nvim_set_current_buf(next_buf)
+        pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
+    end
 end, { desc = "Close buffer" })
 
 -- Buffer navigation (bufferline)
@@ -236,22 +236,22 @@ vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Window right" })
 
 -- Keymaps viewer
 vim.keymap.set("n", "<leader>kk", function()
-	require("which-key").show({ global = false })
+    require("which-key").show({ global = false })
 end, { desc = "Keymaps" })
 
 -- Folding (under <leader>z)
 local function toggle_fold_block()
-	local closed = vim.fn.foldclosed(".")
-	if closed ~= -1 then
-		-- Cursor is on a closed fold — open it
-		vim.cmd("normal! za")
-	else
-		-- Cursor is inside an open block — find start and close it
-		local level = vim.fn.foldlevel(vim.fn.line("."))
-		if level > 0 then
-			vim.cmd("normal! [zza")
-		end
-	end
+    local closed = vim.fn.foldclosed(".")
+    if closed ~= -1 then
+        -- Cursor is on a closed fold — open it
+        vim.cmd("normal! za")
+    else
+        -- Cursor is inside an open block — find start and close it
+        local level = vim.fn.foldlevel(vim.fn.line("."))
+        if level > 0 then
+            vim.cmd("normal! [zza")
+        end
+    end
 end
 vim.keymap.set("n", "<leader>z", "za", { desc = "Toggle fold" })
 vim.keymap.set("n", "<leader>zf", toggle_fold_block, { desc = "Fold/unfold current block" })
@@ -262,11 +262,11 @@ vim.keymap.set("n", "<leader>zc", "zM", { desc = "Close all folds" })
 vim.keymap.set("n", "<leader>dn", "<cmd>lua vim.diagnostic.goto_next()<CR>", { desc = "Next diagnostic" })
 vim.keymap.set("n", "<leader>dp", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { desc = "Previous diagnostic" })
 vim.keymap.set("n", "<leader>dt", function()
-	vim.keymap.set("n", "<leader>dt", function()
-		local bufnr = vim.api.nvim_get_current_buf()
-		local enabled = not vim.diagnostic.is_enabled(bufnr)
-		vim.diagnostic.enable(enabled, { bufnr = bufnr })
-	end, { desc = "Toggle diagnostics" })
+    vim.keymap.set("n", "<leader>dt", function()
+        local bufnr = vim.api.nvim_get_current_buf()
+        local enabled = not vim.diagnostic.is_enabled(bufnr)
+        vim.diagnostic.enable(enabled, { bufnr = bufnr })
+    end, { desc = "Toggle diagnostics" })
 end, { desc = "Toggle diagnostics" })
 
 -- Clear search highlight (under <leader>h group, double-tap)
@@ -278,8 +278,8 @@ vim.keymap.set("n", "[q", "<cmd>cprev<CR>", { desc = "Previous quickfix" })
 
 -- Jump between highlighted word references
 vim.keymap.set("n", "]w", function()
-	require("snacks.words").jump(1)
+    require("snacks.words").jump(1)
 end, { desc = "Next word reference" })
 vim.keymap.set("n", "[w", function()
-	require("snacks.words").jump(-1)
+    require("snacks.words").jump(-1)
 end, { desc = "Previous word reference" })
