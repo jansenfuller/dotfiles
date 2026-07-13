@@ -13,7 +13,8 @@ vim.opt.inccommand = "split"
 -- UI
 vim.opt.termguicolors = true
 vim.opt.guifont = "JetBrainsMono Nerd Font Mono:h12"
-vim.opt.laststatus = 3 -- global statusline (one across full width)
+vim.opt.laststatus = 3
+vim.opt.showtabline = 1  -- tabline only when >1 buffer
 vim.opt.pumblend = 0 -- no popup transparency (reduces escape sequences)
 vim.opt.mouse = "a"
 vim.opt.clipboard = "unnamedplus"
@@ -175,6 +176,7 @@ end, { desc = "Undo history" })
 -- Gitsigns hunks (under <leader>h)
 vim.keymap.set("n", "<leader>hs", "<cmd>lua require'gitsigns'.stage_hunk()<CR>", { desc = "Stage hunk" })
 vim.keymap.set("n", "<leader>hr", "<cmd>lua require'gitsigns'.reset_hunk()<CR>", { desc = "Reset hunk" })
+vim.keymap.set("n", "<leader>hu", "<cmd>lua require'gitsigns'.undo_stage_hunk()<CR>", { desc = "Undo stage hunk" })
 vim.keymap.set("n", "<leader>hp", "<cmd>lua require'gitsigns'.preview_hunk()<CR>", { desc = "Preview hunk" })
 vim.keymap.set("n", "<leader>hb", "<cmd>lua require'gitsigns'.blame_line()<CR>", { desc = "Blame line" })
 vim.keymap.set("n", "<leader>hj", "<cmd>lua require'gitsigns'.next_hunk()<CR>", { desc = "Next hunk" })
@@ -213,6 +215,10 @@ end, { desc = "Close buffer" })
 -- Buffer navigation (bufferline)
 vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
 vim.keymap.set("n", "<leader>bn", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
+
+-- Tab / Shift-Tab for buffer navigation
+vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
+vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
 
 -- File explorer
 vim.keymap.set("n", "<leader>e", function() Snacks.explorer() end, { desc = "Toggle file explorer" })
@@ -256,7 +262,11 @@ vim.keymap.set("n", "<leader>zc", "zM", { desc = "Close all folds" })
 vim.keymap.set("n", "<leader>dn", "<cmd>lua vim.diagnostic.goto_next()<CR>", { desc = "Next diagnostic" })
 vim.keymap.set("n", "<leader>dp", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { desc = "Previous diagnostic" })
 vim.keymap.set("n", "<leader>dt", function()
-	vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+	vim.keymap.set("n", "<leader>dt", function()
+		local bufnr = vim.api.nvim_get_current_buf()
+		local enabled = not vim.diagnostic.is_enabled(bufnr)
+		vim.diagnostic.enable(enabled, { bufnr = bufnr })
+	end, { desc = "Toggle diagnostics" })
 end, { desc = "Toggle diagnostics" })
 
 -- Clear search highlight (under <leader>h group, double-tap)

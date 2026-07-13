@@ -4,7 +4,10 @@ require("lazyload").on_vim_enter(function()
 		{ src = "https://github.com/folke/snacks.nvim" },
 	})
 	require("snacks").setup({
-		picker = { enabled = true },
+		picker = {
+			enabled = true,
+			layout = { border = "rounded" },
+		},
 		explorer = {
 			enabled = true,
 			file = { filename_only = true },

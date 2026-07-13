@@ -12,7 +12,8 @@ require("lazyload").on_vim_enter(function()
 		{ src = "https://github.com/folke/which-key.nvim" },
 	})
 	require("which-key").setup({
-		delay = 50, -- show popup faster when leader is pressed
+		delay = 50,
+		win = { border = "rounded" },
 	})
 	require("which-key").add({
 		{ "<leader>f", group = "Find", icon = "" },
@@ -168,33 +169,31 @@ require("lazyload").on_vim_enter(function()
 
 	-- 9. Terminal (snacks.terminal) — floating toggle via <leader>i
 	vim.keymap.set("n", "<leader>i", function()
-		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded" } })
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.45, height = 0.45 } })
 	end, { desc = "Toggle terminal" })
 	vim.keymap.set("n", "<A-i>", function()
-		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded" } })
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.45, height = 0.45 } })
 	end, { desc = "Toggle terminal" })
 	vim.keymap.set("t", "<A-i>", function()
-		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded" } })
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.45, height = 0.45 } })
 	end, { desc = "Toggle terminal" })
 
-	-- 10. auto-save.nvim — auto-save on InsertLeave
-	vim.pack.add({
-		{ src = "https://github.com/pocco81/auto-save.nvim" },
-	})
-	require("auto-save").setup({
-		enabled = true,
-		execution_message = { message = "" },
-		events = { "InsertLeave" },
-		conditions = {
-			exists = true,
-			filetype_is_not = {},
-		},
-	})
-
-	-- 11. wakatime/vim-wakatime — automatic time tracking
+	-- 10. wakatime/vim-wakatime — automatic time tracking
 	vim.pack.add({
 		{ src = "https://github.com/wakatime/vim-wakatime" },
 	})
+
+	-- 11. Periodic auto-save (every 60s, no format)
+	vim.defer_fn(function()
+		local function auto_save()
+			local bufnr = vim.api.nvim_get_current_buf()
+			if vim.bo[bufnr].modified and vim.bo[bufnr].buflisted and vim.fn.bufname(bufnr) ~= "" then
+				pcall(vim.cmd, "silent write")
+			end
+			vim.defer_fn(auto_save, 60000)
+		end
+		auto_save()
+	end, 60000)
 
 	-- 12. wrapped.nvim — year-in-review dashboard (:NvimWrapped / :WrappedNvim)
 	vim.pack.add({
