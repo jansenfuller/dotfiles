@@ -66,15 +66,6 @@ require("lazyload").on_vim_enter(function()
   })
 
   -- ── Blink.cmp: autocompletion ───────────────────────────────
-  -- Rounded borders for all LSP floating windows
-  vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
-    config = vim.tbl_extend("force", config or {}, { border = "rounded" })
-    vim.lsp.handlers.hover(err, result, ctx, config)
-  end
-  vim.lsp.handlers["textDocument/signatureHelp"] = function(err, result, ctx, config)
-    config = vim.tbl_extend("force", config or {}, { border = "rounded" })
-    vim.lsp.handlers.signature_help(err, result, ctx, config)
-  end
   require("blink.cmp").setup({
     keymap = {
       preset = "default",
@@ -135,7 +126,7 @@ require("lazyload").on_vim_enter(function()
       vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, opts)
       vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
       vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts)
-      vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+      vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded" }) end, opts)
       vim.keymap.set("n", "<leader>ln", vim.lsp.buf.rename, opts)
       vim.keymap.set("n", "<leader>lc", vim.lsp.buf.code_action, opts)
       -- Inlay hints: show inferred types for TypeScript + Rust

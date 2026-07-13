@@ -8,10 +8,7 @@ require("lazyload").on_vim_enter(function()
 			enabled = true,
 			layout = { border = "rounded" },
 		},
-		explorer = {
-			enabled = true,
-			file = { filename_only = true },
-		},
+		explorer = { enabled = true },
 		words = { enabled = true, debounce = 300 },
 		rename = { enabled = true },
 	})

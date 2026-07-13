@@ -58,6 +58,7 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>bn", desc = "Next buffer" },
 		{ "<leader>bp", desc = "Previous buffer" },
 		{ "<leader>fw", desc = "Grep word under cursor" },
+		{ "<leader>e", desc = "Toggle file explorer" },
 	})
 
 	-- 4. blink.indent — fast indent guides
@@ -143,7 +144,7 @@ require("lazyload").on_vim_enter(function()
 		},
 	})
 
-	-- 8. bufferline.nvim — NvChad-style tabufline
+	-- 8. bufferline.nvim — tabufline
 	local bg_lighter = "#2a2b2e"
 	vim.pack.add({
 		{ src = "https://github.com/akinsho/bufferline.nvim" },
@@ -162,7 +163,6 @@ require("lazyload").on_vim_enter(function()
 			show_close_icon = false,
 			color_mode = "buffer",
 			enforce_regular_tabs = false,
-			offsets = { { filetype = "snacks_picker", text = "Explorer", highlight = "Directory", padding = 1 } },
 		},
 	})
 
@@ -194,7 +194,7 @@ require("lazyload").on_vim_enter(function()
 		auto_save()
 	end, 60000)
 
-	-- 12. wrapped.nvim — year-in-review dashboard (:NvimWrapped / :WrappedNvim)
+	-- 13. wrapped.nvim — year-in-review dashboard (:NvimWrapped / :WrappedNvim)
 	vim.pack.add({
 		{ src = "https://github.com/nvzone/volt" },
 	})

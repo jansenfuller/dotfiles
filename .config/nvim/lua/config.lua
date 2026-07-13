@@ -14,7 +14,7 @@ vim.opt.inccommand = "split"
 vim.opt.termguicolors = true
 vim.opt.guifont = "JetBrainsMono Nerd Font Mono:h12"
 vim.opt.laststatus = 3
-vim.opt.showtabline = 1 -- tabline only when >1 buffer
+vim.opt.showtabline = 2 -- always show buffer tabs
 vim.opt.pumblend = 0    -- no popup transparency (reduces escape sequences)
 vim.opt.mouse = "a"
 vim.opt.clipboard = "unnamedplus"
@@ -104,15 +104,18 @@ vim.diagnostic.config({
     },
 })
 
--- Format on save (via LSP)
+-- Format on save (just line endings, no auto-format)
 vim.api.nvim_create_autocmd("BufWritePre", {
     callback = function()
         local bufnr = vim.api.nvim_get_current_buf()
         vim.bo[bufnr].fileformat = "unix"
-        local clients = vim.lsp.get_clients({ bufnr = bufnr })
-        if #clients > 0 then
-            pcall(vim.lsp.buf.format, { bufnr = bufnr, async = true, timeout_ms = 10000 })
-        end
+    end,
+})
+
+-- Mouse hover: show LSP docs after 750ms idle on a word
+vim.api.nvim_create_autocmd("CursorHold", {
+    callback = function()
+        vim.lsp.buf.hover({ border = "rounded" })
     end,
 })
 
@@ -188,17 +191,15 @@ vim.keymap.set("n", "<leader>mf", function()
 end, { desc = "Format current file" })
 
 -- Buffer operations (under <leader>b)
-vim.keymap.set("n", "<leader>bd", function()
+local function close_buffer()
     local bufnr = vim.api.nvim_get_current_buf()
     local listed = vim.tbl_filter(function(b)
         return vim.bo[b].buflisted
     end, vim.api.nvim_list_bufs())
     if #listed <= 1 then
-        -- Last buffer: create empty one, then delete current
         vim.cmd("enew")
         pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
     else
-        -- Switch to the next buffer in the list first, then delete
         local idx
         for i, b in ipairs(listed) do
             if b == bufnr then
@@ -210,7 +211,9 @@ vim.keymap.set("n", "<leader>bd", function()
         vim.api.nvim_set_current_buf(next_buf)
         pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
     end
-end, { desc = "Close buffer" })
+end
+vim.keymap.set("n", "<leader>bd", close_buffer, { desc = "Close buffer" })
+vim.keymap.set("n", "<leader>x", close_buffer, { desc = "Close buffer" })
 
 -- Buffer navigation (bufferline)
 vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
@@ -220,7 +223,7 @@ vim.keymap.set("n", "<leader>bn", "<cmd>BufferLineCycleNext<CR>", { desc = "Next
 vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
 
--- File explorer
+-- File explorer (snacks picker-style)
 vim.keymap.set("n", "<leader>e", function() Snacks.explorer() end, { desc = "Toggle file explorer" })
 
 -- Split management
@@ -259,8 +262,8 @@ vim.keymap.set("n", "<leader>zo", "zR", { desc = "Open all folds" })
 vim.keymap.set("n", "<leader>zc", "zM", { desc = "Close all folds" })
 
 -- Diagnostic navigation (under <leader>d)
-vim.keymap.set("n", "<leader>dn", "<cmd>lua vim.diagnostic.goto_next()<CR>", { desc = "Next diagnostic" })
-vim.keymap.set("n", "<leader>dp", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { desc = "Previous diagnostic" })
+vim.keymap.set("n", "<leader>dn", "<cmd>lua vim.diagnostic.jump({ count = 1 })()<CR>", { desc = "Next diagnostic" })
+vim.keymap.set("n", "<leader>dp", "<cmd>lua vim.diagnostic.jump({ count = -1 })()<CR>", { desc = "Previous diagnostic" })
 vim.keymap.set("n", "<leader>dt", function()
     vim.keymap.set("n", "<leader>dt", function()
         local bufnr = vim.api.nvim_get_current_buf()
