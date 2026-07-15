@@ -149,15 +149,16 @@ require("lazyload").on_vim_enter(function()
 	})
 
 	-- mini.map — code minimap with treesitter highlighting
-	require("mini.map").setup({
+	local map = require("mini.map")
+	map.setup({
 		integrations = {
-			mini.map.gen_integration.builtin_search(),
-			mini.map.gen_integration.diagnostic(),
+			map.gen_integration.builtin_search(),
+			map.gen_integration.diagnostic(),
 		},
 	})
-	require("mini.map").open()
+	map.open()
 	vim.keymap.set("n", "<leader>mm", function()
-		require("mini.map").toggle()
+		map.toggle()
 	end, { desc = "Toggle minimap" })
 
 	-- 8. bufferline.nvim — tabufline
