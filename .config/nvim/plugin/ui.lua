@@ -51,6 +51,7 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>li", desc = "Go to implementation" },
 		{ "<leader>lk", desc = "Hover documentation" },
 		{ "<leader>lm", desc = "Rename file" },
+		{ "<leader>mm", desc = "Toggle minimap" },
 		{ "<leader>ln", desc = "Rename symbol" },
 		{ "<leader>lr", desc = "LSP references" },
 		{ "<leader>ls", desc = "LSP symbols" },
@@ -146,6 +147,18 @@ require("lazyload").on_vim_enter(function()
 			update_n_lines = "sn",
 		},
 	})
+
+	-- mini.map — code minimap with treesitter highlighting
+	require("mini.map").setup({
+		integrations = {
+			mini.map.gen_integration.builtin_search(),
+			mini.map.gen_integration.diagnostic(),
+		},
+	})
+	MiniMap.open()
+	vim.keymap.set("n", "<leader>mm", function()
+		MiniMap.toggle()
+	end, { desc = "Toggle minimap" })
 
 	-- 8. bufferline.nvim — tabufline
 	local bg_lighter = "#2a2b2e"
