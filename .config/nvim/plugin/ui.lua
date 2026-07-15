@@ -155,9 +155,9 @@ require("lazyload").on_vim_enter(function()
 			mini.map.gen_integration.diagnostic(),
 		},
 	})
-	MiniMap.open()
+	require("mini.map").open()
 	vim.keymap.set("n", "<leader>mm", function()
-		MiniMap.toggle()
+		require("mini.map").toggle()
 	end, { desc = "Toggle minimap" })
 
 	-- 8. bufferline.nvim — tabufline
