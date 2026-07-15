@@ -18,11 +18,20 @@ require("lazyload").on_vim_enter(function()
 
 	-- Single source of truth: filetype → parsers to install & highlight
 	local ft_parsers = {
-		lua = { "lua" }, go = { "go" }, rust = { "rust" },
-		elixir = { "elixir" }, markdown = { "markdown", "markdown_inline" },
-		bash = { "bash" }, yaml = { "yaml" }, json = { "json" }, toml = { "toml" },
-		typescript = { "typescript", "javascript" }, html = { "html" }, css = { "css" },
-		ruby = { "ruby" }, eruby = { "embedded_template" },
+		lua = { "lua" },
+		go = { "go" },
+		rust = { "rust" },
+		elixir = { "elixir" },
+		markdown = { "markdown", "markdown_inline" },
+		bash = { "bash" },
+		yaml = { "yaml" },
+		json = { "json" },
+		toml = { "toml" },
+		typescript = { "typescript", "javascript" },
+		html = { "html" },
+		css = { "css" },
+		ruby = { "ruby" },
+		eruby = { "embedded_template" },
 		typescriptreact = { "tsx", "typescript", "javascript" },
 		javascriptreact = { "tsx", "javascript" },
 	}

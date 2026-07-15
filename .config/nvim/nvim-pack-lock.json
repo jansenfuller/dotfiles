@@ -38,7 +38,7 @@
       "src": "https://github.com/rafamadriz/friendly-snippets"
     },
     "gitsigns.nvim": {
-      "rev": "eb60cc7b94c46005237fd34170d76f3a089a90aa",
+      "rev": "31d6fb2d618bca1482b9f274751ead5f03461408",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
@@ -46,7 +46,7 @@
       "src": "https://github.com/MagicDuck/grug-far.nvim"
     },
     "mason-lspconfig.nvim": {
-      "rev": "47059d71b42d74b0a1e9f61c1d99d301039c3b5b",
+      "rev": "a4068c3ebd4cb335b25239e5ea35c22ee6007962",
       "src": "https://github.com/williamboman/mason-lspconfig.nvim"
     },
     "mason.nvim": {
@@ -54,11 +54,11 @@
       "src": "https://github.com/williamboman/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "db41c4076105a63caec12612d11228348f55a109",
+      "rev": "05a80b0340a92136a93ab04346cf97de3f165948",
       "src": "https://github.com/echasnovski/mini.nvim"
     },
     "neotest": {
-      "rev": "fb84d87285698f7055f618083c351984449119b8",
+      "rev": "504944bd70ef575315bc72a6aa633ef6ea0a4913",
       "src": "https://github.com/nvim-neotest/neotest"
     },
     "neotest-rspec": {
@@ -70,11 +70,11 @@
       "src": "https://github.com/rouge8/neotest-rust"
     },
     "nvim-colorizer.lua": {
-      "rev": "149fbd9f5e25511b0a8bad3ccecd43d1bc584f86",
+      "rev": "72a05f62c52241bc7441c820eb53946f92b2e6a4",
       "src": "https://github.com/NvChad/nvim-colorizer.lua"
     },
     "nvim-lspconfig": {
-      "rev": "2c227d59589957fa4404b7de5f61d72c0a78a62d",
+      "rev": "d5b6e3db4c17b0146f63a2fc47e2027a754b2cb1",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -94,7 +94,7 @@
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-web-devicons": {
-      "rev": "09d1324e264c6950262dbe02a9bce2933a6800db",
+      "rev": "0ca28b61a04fe7426cefbdd52c2647ef0e335b5f",
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "plenary.nvim": {

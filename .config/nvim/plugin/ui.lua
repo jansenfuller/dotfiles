@@ -27,38 +27,41 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>z", group = "Fold" },
 	})
 
-	-- Add individual mappings to which-key groups
+	-- Add individual mappings to which-key groups (sorted by key)
 	require("which-key").add({
-		{ "<leader>zf", desc = "Fold/unfold current block" },
-		{ "<leader>kk", desc = "Show all keymaps" },
-		{ "<leader>tn", desc = "Run nearest test" },
-		{ "<leader>tf", desc = "Run test file" },
-		{ "<leader>ts", desc = "Test summary" },
-		{ "<leader>to", desc = "Test output" },
-		{ "<leader>zo", desc = "Open all folds" },
-		{ "<leader>zc", desc = "Close all folds" },
-		{ "<leader>hh", desc = "Clear search highlight" },
-		{ "<leader>dn", desc = "Next diagnostic" },
-		{ "<leader>dp", desc = "Previous diagnostic" },
-		{ "<leader>dt", desc = "Toggle diagnostics" },
-		{ "<leader>hj", desc = "Next hunk" },
-		{ "<leader>hk", desc = "Previous hunk" },
-		{ "<leader>fz", desc = "Recent files" },
-		{ "<leader>fp", desc = "Switch project" },
-		{ "<leader>fc", desc = "Colorschemes" },
-		{ "<leader>fh", desc = "Help tags" },
-		{ "<leader>ls", desc = "LSP symbols" },
-		{ "<leader>ld", desc = "Go to definition" },
-		{ "<leader>li", desc = "Go to implementation" },
-		{ "<leader>lk", desc = "Hover documentation" },
-		{ "<leader>lr", desc = "LSP references" },
-		{ "<leader>ln", desc = "Rename symbol" },
-		{ "<leader>lc", desc = "Code action" },
 		{ "<leader>bd", desc = "Close buffer" },
 		{ "<leader>bn", desc = "Next buffer" },
 		{ "<leader>bp", desc = "Previous buffer" },
-		{ "<leader>fw", desc = "Grep word under cursor" },
+		{ "<leader>dn", desc = "Next diagnostic" },
+		{ "<leader>dp", desc = "Previous diagnostic" },
+		{ "<leader>dt", desc = "Toggle diagnostics" },
 		{ "<leader>e", desc = "Toggle file explorer" },
+		{ "<leader>fc", desc = "Colorschemes" },
+		{ "<leader>fh", desc = "Help tags" },
+		{ "<leader>fp", desc = "Switch project" },
+		{ "<leader>fw", desc = "Grep word under cursor" },
+		{ "<leader>fz", desc = "Recent files" },
+		{ "<leader>hh", desc = "Clear search highlight" },
+		{ "<leader>hj", desc = "Next hunk" },
+		{ "<leader>hk", desc = "Previous hunk" },
+		{ "<leader>hu", desc = "Undo stage hunk" },
+		{ "<leader>kk", desc = "Show all keymaps" },
+		{ "<leader>lc", desc = "Code action" },
+		{ "<leader>ld", desc = "Go to definition" },
+		{ "<leader>li", desc = "Go to implementation" },
+		{ "<leader>lk", desc = "Hover documentation" },
+		{ "<leader>lm", desc = "Rename file" },
+		{ "<leader>ln", desc = "Rename symbol" },
+		{ "<leader>lr", desc = "LSP references" },
+		{ "<leader>ls", desc = "LSP symbols" },
+		{ "<leader>tf", desc = "Run test file" },
+		{ "<leader>tn", desc = "Run nearest test" },
+		{ "<leader>to", desc = "Test output" },
+		{ "<leader>ts", desc = "Test summary" },
+		{ "<leader>x", desc = "Close buffer" },
+		{ "<leader>zc", desc = "Close all folds" },
+		{ "<leader>zf", desc = "Fold/unfold current block" },
+		{ "<leader>zo", desc = "Open all folds" },
 	})
 
 	-- 4. blink.indent — fast indent guides
@@ -185,11 +188,16 @@ require("lazyload").on_vim_enter(function()
 	-- 11. Periodic auto-save (every 60s, no format)
 	vim.defer_fn(function()
 		local function auto_save()
-			local bufnr = vim.api.nvim_get_current_buf()
-			if vim.bo[bufnr].modified and vim.bo[bufnr].buflisted and vim.fn.bufname(bufnr) ~= "" then
-				pcall(vim.cmd, "silent write")
+			local has_modified = false
+			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+				if vim.bo[buf].modified and vim.bo[buf].buflisted and vim.fn.bufname(buf) ~= "" then
+					has_modified = true
+					pcall(vim.cmd, "silent write")
+				end
 			end
-			vim.defer_fn(auto_save, 60000)
+			if has_modified then
+				vim.defer_fn(auto_save, 60000)
+			end
 		end
 		auto_save()
 	end, 60000)
