@@ -153,7 +153,12 @@ require("lazyload").on_vim_enter(function()
 	map.setup({
 		integrations = {
 			map.gen_integration.builtin_search(),
-			map.gen_integration.diagnostic(),
+			map.gen_integration.diagnostic({
+				error = "DiagnosticError",
+				warn  = "DiagnosticWarn",
+				info  = "DiagnosticInfo",
+				hint  = "DiagnosticHint",
+			}),
 		},
 	})
 	map.open()
