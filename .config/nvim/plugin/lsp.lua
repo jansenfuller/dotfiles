@@ -75,6 +75,14 @@ require("lazyload").on_vim_enter(function()
 		},
 		completion = {
 			documentation = { auto_show = false },
+			menu = {
+				draw = {
+					columns = {
+						{ "kind_icon" },
+						{ "label", "label_description", gap = 1 },
+					},
+				},
+			},
 		},
 		signature = {
 			enabled = true,
