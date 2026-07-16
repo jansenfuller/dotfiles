@@ -66,6 +66,9 @@ require("lazyload").on_vim_enter(function()
 	})
 
 	-- ── Blink.cmp: autocompletion ───────────────────────────────
+	vim.pack.add({
+		{ src = "https://github.com/rafamadriz/friendly-snippets" },
+	})
 	require("blink.cmp").setup({
 		keymap = {
 			preset = "default",
@@ -76,10 +79,22 @@ require("lazyload").on_vim_enter(function()
 		completion = {
 			documentation = { auto_show = false },
 			menu = {
+				border = "rounded",
 				draw = {
 					columns = {
 						{ "kind_icon" },
-						{ "label", "label_description", gap = 1 },
+						{ "label", "custom_detail", gap = 1 },
+					},
+					components = {
+						custom_detail = {
+							ellipsis = false,
+							width = { max = 40 },
+							text = function(ctx)
+								local detail = ctx.item.detail or ""
+								return detail
+							end,
+							highlight = "BlinkCmpLabelDetail",
+						},
 					},
 				},
 			},
@@ -118,7 +133,7 @@ require("lazyload").on_vim_enter(function()
 			},
 		},
 		sources = {
-			default = { "lsp", "path", "buffer" },
+			default = { "lsp", "path", "snippets", "buffer" },
 		},
 		fuzzy = {
 			implementation = "prefer_rust",

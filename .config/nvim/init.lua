@@ -6,9 +6,9 @@ require("lazyload")
 
 -- Colorscheme: loaded eagerly (must be applied before VimEnter, not deferred)
 vim.pack.add({
-	{ src = "https://github.com/dylanaraps/crayon" },
+  { src = "https://github.com/rebelot/kanagawa.nvim" },
 })
-vim.cmd.colorscheme("crayon")
+vim.cmd.colorscheme("kanagawa")
 
 -- Check for plugin updates once per day
 vim.schedule(function()

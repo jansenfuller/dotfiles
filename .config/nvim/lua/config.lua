@@ -22,41 +22,30 @@ vim.opt.fileformat = "unix" -- default to unix line endings
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "line"
 
--- Highlight overrides using crayon palette colors (set after colorscheme via autocmd)
-vim.api.nvim_create_autocmd("ColorScheme", {
-	callback = function()
-		-- Cursor line: subtle highlight using crayon's dark gray (#282C33)
-		vim.api.nvim_set_hl(0, "CursorLine", { bg = "#282C33" })
-		-- Line numbers: as bright as normal text
-		local normal_fg = vim.api.nvim_get_hl(0, { id = vim.api.nvim_get_hl_id_by_name("Normal") }).fg
-		vim.api.nvim_set_hl(0, "LineNr", { fg = normal_fg })
-		-- Window separator: subtle line using crayon's dark gray
-		vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#282C33", bg = "#101112" })
-		-- Git gutter signs: crayon palette colors
-		vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#99AE63" }) -- crayon green
-		vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#D8C27A" }) -- crayon yellow
-		vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#B27B78" }) -- crayon red
-		-- Indent guides: subtle lines, active scope brighter
-		vim.api.nvim_set_hl(0, "BlinkIndent", { fg = "#383E47" }) -- crayon medium dark gray
-		vim.api.nvim_set_hl(0, "BlinkIndentScope", { fg = "#586270" }) -- crayon medium gray
-		-- Statusline: bright text (crayon default is #586270 which is unreadable)
-		vim.api.nvim_set_hl(0, "StatusLine", { fg = "#BCC5D1", bg = "#101112" })
-		-- Statusline mode colors (lualine-style)
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = "#101112", bg = "#99AE63" }) -- green
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeInsert", { fg = "#101112", bg = "#7495B6" }) -- blue
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#101112", bg = "#B59CD8" }) -- purple
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#101112", bg = "#D8C27A" }) -- yellow
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#FDFEFF", bg = "#B27B78" }) -- red
-		-- Inlay hints: subtle gray for TS type annotations / Rust lifetime elisions
-		vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#586270", bg = "#101112" })
-		-- Snacks picker: directory path readable (midpoint between bg #101112 and white #FDFEFF)
-		vim.api.nvim_set_hl(0, "SnacksPickerDir", { fg = "#878889" })
-
-		-- Tabline: brighter selected tab
-		vim.api.nvim_set_hl(0, "TabLine", { fg = "#798494", bg = "#282C33" })
-		vim.api.nvim_set_hl(0, "TabLineSel", { fg = "#FDFEFF", bg = "#383E47" })
-	end,
-})
+-- Highlight overrides (commented out — now using kanagawa.nvim)
+-- vim.api.nvim_create_autocmd("ColorScheme", {
+-- 	callback = function()
+-- 		vim.api.nvim_set_hl(0, "CursorLine", { bg = "#282C33" })
+-- 		local normal_fg = vim.api.nvim_get_hl(0, { id = vim.api.nvim_get_hl_id_by_name("Normal") }).fg
+-- 		vim.api.nvim_set_hl(0, "LineNr", { fg = normal_fg })
+-- 		vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#282C33", bg = "#101112" })
+-- 		vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#99AE63" })
+-- 		vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#D8C27A" })
+-- 		vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#B27B78" })
+-- 		vim.api.nvim_set_hl(0, "BlinkIndent", { fg = "#383E47" })
+-- 		vim.api.nvim_set_hl(0, "BlinkIndentScope", { fg = "#586270" })
+-- 		vim.api.nvim_set_hl(0, "StatusLine", { fg = "#BCC5D1", bg = "#101112" })
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = "#101112", bg = "#99AE63" })
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeInsert", { fg = "#101112", bg = "#7495B6" })
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#101112", bg = "#B59CD8" })
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#101112", bg = "#D8C27A" })
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#FDFEFF", bg = "#B27B78" })
+-- 		vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#586270", bg = "#101112" })
+-- 		vim.api.nvim_set_hl(0, "SnacksPickerDir", { fg = "#878889" })
+-- 		vim.api.nvim_set_hl(0, "TabLine", { fg = "#798494", bg = "#282C33" })
+-- 		vim.api.nvim_set_hl(0, "TabLineSel", { fg = "#FDFEFF", bg = "#383E47" })
+-- 	end,
+-- })
 vim.opt.signcolumn = "yes" -- dedicated sign column
 vim.opt.sidescrolloff = 8
 
