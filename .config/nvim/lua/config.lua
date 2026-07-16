@@ -46,6 +46,17 @@ vim.opt.cursorlineopt = "line"
 -- 		vim.api.nvim_set_hl(0, "TabLineSel", { fg = "#FDFEFF", bg = "#383E47" })
 -- 	end,
 -- })
+
+-- Statusline mode colors (using Alduin palette shades)
+vim.api.nvim_create_autocmd("ColorScheme", {
+	callback = function()
+		vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = "#121212", bg = "#dfdfaf" })   -- soft yellow
+		vim.api.nvim_set_hl(0, "MiniStatuslineModeInsert", { fg = "#121212", bg = "#87afaf" })   -- alduin cyan
+		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#121212", bg = "#af8787" })   -- alduin soft red
+		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#121212", bg = "#dfaf87" })  -- soft orange
+		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#dfdfaf", bg = "#af5f5f" })  -- red
+	end,
+})
 vim.opt.signcolumn = "yes" -- dedicated sign column
 vim.opt.sidescrolloff = 8
 
@@ -131,10 +142,6 @@ end, { desc = "Diagnostics" })
 vim.keymap.set("n", "<leader>fz", function()
 	Snacks.picker.recent()
 end, { desc = "Recent files" })
-vim.keymap.set("n", "<leader>fc", function()
-	Snacks.picker.colorschemes()
-end, { desc = "Colorschemes" })
-
 vim.keymap.set("n", "<leader>fp", function()
 	Snacks.picker.projects({ dev = { "~/dev" } })
 end, { desc = "Switch project" })
@@ -222,7 +229,7 @@ end, { desc = "Toggle file explorer" })
 
 -- Split management
 vim.keymap.set("n", "<leader>v", "<cmd>vsplit<CR>", { desc = "Vertical split" })
-vim.keymap.set("n", "<leader>h", "<cmd>split<CR>", { desc = "Horizontal split" })
+vim.keymap.set("n", "<leader>-", "<cmd>split<CR>", { desc = "Horizontal split" })
 vim.keymap.set("n", "<leader>q", "<C-w>c", { desc = "Close split" })
 
 -- Window navigation via Ctrl+h/j/k/l (move between splits)
@@ -265,8 +272,8 @@ vim.keymap.set(
 )
 vim.keymap.set("n", "<leader>dt", function()
 	local bufnr = vim.api.nvim_get_current_buf()
-	local enabled = not vim.diagnostic.is_enabled(bufnr)
-	vim.diagnostic.enable(enabled, { bufnr = bufnr })
+	local enabled = vim.diagnostic.is_enabled({ bufnr = bufnr })
+	vim.diagnostic.enable(not enabled, { bufnr = bufnr })
 end, { desc = "Toggle diagnostics" })
 
 -- Clear search highlight (under <leader>h group, double-tap)

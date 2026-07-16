@@ -1,5 +1,9 @@
 {
   "plugins": {
+    "Alduin": {
+      "rev": "6575a0f167fef521c404681b96caebdb2b9cc4cd",
+      "src": "https://github.com/AlessandroYorba/Alduin"
+    },
     "FTerm.nvim": {
       "rev": "d1320892cc2ebab472935242d9d992a2c9570180",
       "src": "https://github.com/numToStr/FTerm.nvim"

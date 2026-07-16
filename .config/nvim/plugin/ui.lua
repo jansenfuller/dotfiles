@@ -29,6 +29,7 @@ require("lazyload").on_vim_enter(function()
 
 	-- Add individual mappings to which-key groups (sorted by key)
 	require("which-key").add({
+		{ "<leader>-", desc = "Horizontal split" },
 		{ "<leader>bd", desc = "Close buffer" },
 		{ "<leader>bn", desc = "Next buffer" },
 		{ "<leader>bp", desc = "Previous buffer" },
@@ -36,7 +37,6 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>dp", desc = "Previous diagnostic" },
 		{ "<leader>dt", desc = "Toggle diagnostics" },
 		{ "<leader>e", desc = "Toggle file explorer" },
-		{ "<leader>fc", desc = "Colorschemes" },
 		{ "<leader>fh", desc = "Help tags" },
 		{ "<leader>fp", desc = "Switch project" },
 		{ "<leader>fw", desc = "Grep word under cursor" },
@@ -51,10 +51,10 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>li", desc = "Go to implementation" },
 		{ "<leader>lk", desc = "Hover documentation" },
 		{ "<leader>lm", desc = "Rename file" },
-		{ "<leader>mm", desc = "Toggle minimap" },
 		{ "<leader>ln", desc = "Rename symbol" },
 		{ "<leader>lr", desc = "LSP references" },
 		{ "<leader>ls", desc = "LSP symbols" },
+		{ "<leader>mm", desc = "Toggle minimap" },
 		{ "<leader>tf", desc = "Run test file" },
 		{ "<leader>tn", desc = "Run nearest test" },
 		{ "<leader>to", desc = "Test output" },
@@ -64,7 +64,6 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>zf", desc = "Fold/unfold current block" },
 		{ "<leader>zo", desc = "Open all folds" },
 	})
-
 	-- 4. blink.indent — fast indent guides
 	vim.pack.add({
 		{ src = "https://github.com/saghen/blink.indent" },
