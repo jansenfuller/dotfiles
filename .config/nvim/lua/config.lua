@@ -70,10 +70,8 @@ vim.opt.incsearch = true
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
--- Folds (treesitter-powered)
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldtext = ""
+-- Folds (indentation-based, more predictable than treesitter)
+vim.opt.foldmethod = "indent"
 vim.opt.foldlevel = 99
 vim.opt.foldopen:remove("hor") -- don't open folds on horizontal movement
 
