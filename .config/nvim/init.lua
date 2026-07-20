@@ -11,7 +11,7 @@ vim.pack.add({
 	{ src = "https://github.com/arnauKL/south.nvim" },
 	{ src = "https://github.com/AlexvZyl/nordic.nvim" },
 })
-vim.cmd.colorscheme("alduin")
+vim.cmd.colorscheme("nordic")
 
 -- Check for plugin updates once per day
 vim.schedule(function()
