@@ -58,6 +58,13 @@ vim.opt.cursorlineopt = "line"
 -- 		vim.api.nvim_set_hl(0, "LineNr", { fg = "#dfdfaf" })
 -- 	end,
 -- })
+
+-- Ensure float borders are always visible regardless of colorscheme
+vim.api.nvim_create_autocmd("ColorScheme", {
+	callback = function()
+		vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#586270" })
+	end,
+})
 vim.opt.signcolumn = "yes" -- dedicated sign column
 vim.opt.sidescrolloff = 8
 
@@ -158,7 +165,17 @@ vim.keymap.set("n", "<leader>fz", function()
 	Snacks.picker.recent()
 end, { desc = "Recent files" })
 vim.keymap.set("n", "<leader>fp", function()
-	Snacks.picker.projects({ dev = { "~/dev" } })
+	local old_cwd = vim.fn.getcwd()
+	Snacks.picker.projects({ dev = { "~/dev" } }, function(project)
+		if project and project.dir ~= old_cwd then
+			-- Close all buffers when switching to a different project
+			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+				if vim.bo[buf].buflisted then
+					pcall(vim.api.nvim_buf_delete, buf, { force = false })
+				end
+			end
+		end
+	end)
 end, { desc = "Switch project" })
 vim.keymap.set("n", "<leader>fw", function()
 	Snacks.picker.grep({ args = { "--hidden", "-w", vim.fn.expand("<cword>") } })

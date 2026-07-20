@@ -15,7 +15,15 @@ require("lazyload").on_vim_enter(function()
 		delay = 50,
 		win = { border = "rounded" },
 		plugins = {
-			presets = { z = false },
+			presets = {
+				operators = false,
+				motions = false,
+				text_objects = false,
+				windows = false,
+				nav = false,
+				z = false,
+				g = false,
+			},
 		},
 	})
 	require("which-key").add({
