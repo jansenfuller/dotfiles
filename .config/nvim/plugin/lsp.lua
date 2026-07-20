@@ -25,7 +25,6 @@ require("lazyload").on_vim_enter(function()
 	-- automatic_enable = true (default) calls vim.lsp.enable() for installed
 	-- servers, which defers actual startup until a matching filetype opens.
 	require("mason-lspconfig").setup({
-		-- Ruby LSP is assumed to be installed manually; no ensure_installed needed.
 		handlers = {
 			-- Custom config for ruby_lsp (Rails support)
 			ruby_lsp = function()
@@ -33,29 +32,7 @@ require("lazyload").on_vim_enter(function()
 					cmd = { "ruby-lsp" },
 					init_options = {
 						formatter = "auto",
-						-- ruby-lsp-rails is auto-detected from the Gemfile when installed
 					},
-				})
-			end,
-			-- Find TypeScript: local node_modules first, then global npm
-			ts_ls = function()
-				require("lspconfig").ts_ls.setup({
-					on_new_config = function(config, new_root_dir)
-						local local_ts = vim.fs.joinpath(new_root_dir, "node_modules", "typescript", "lib")
-						if vim.fn.isdirectory(local_ts) == 1 then
-							config.settings = vim.tbl_extend("force", config.settings or {}, {
-								tsserver = { path = local_ts },
-							})
-							return
-						end
-						local global_npm = vim.fn.systemlist("npm root -g")[1] or ""
-						local global_ts = vim.fs.joinpath(global_npm, "typescript")
-						if vim.fn.isdirectory(global_ts) == 1 then
-							config.settings = vim.tbl_extend("force", config.settings or {}, {
-								tsserver = { path = global_ts },
-							})
-						end
-					end,
 				})
 			end,
 			-- Default: use lspconfig defaults for all other servers
@@ -77,7 +54,7 @@ require("lazyload").on_vim_enter(function()
 			["<CR>"] = { "accept", "fallback" },
 		},
 		completion = {
-			documentation = { auto_show = false },
+			documentation = { auto_show = true, window = { border = "rounded" } },
 			menu = {
 				border = "rounded",
 				draw = {
@@ -164,5 +141,11 @@ require("lazyload").on_vim_enter(function()
 		callback = function(ev)
 			vim.api.nvim_buf_clear_namespace(ev.buf, 0, 0, -1)
 		end,
+	})
+
+	-- ── diactions.nvim: code actions from linter diagnostics ───
+	-- Requires none-ls.nvim for full functionality.
+	vim.pack.add({
+		{ src = "https://github.com/GasparVardanyan/diactions.nvim" },
 	})
 end)

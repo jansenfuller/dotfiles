@@ -7,6 +7,9 @@ require("lazyload")
 -- Colorscheme: loaded eagerly (must be applied before VimEnter, not deferred)
 vim.pack.add({
 	{ src = "https://github.com/AlessandroYorba/Alduin" },
+	{ src = "https://github.com/mitander/flume.nvim" },
+	{ src = "https://github.com/arnauKL/south.nvim" },
+	{ src = "https://github.com/AlexvZyl/nordic.nvim" },
 })
 vim.cmd.colorscheme("alduin")
 

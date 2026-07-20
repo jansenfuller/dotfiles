@@ -14,6 +14,9 @@ require("lazyload").on_vim_enter(function()
 	require("which-key").setup({
 		delay = 50,
 		win = { border = "rounded" },
+		plugins = {
+			presets = { z = false },
+		},
 	})
 	require("which-key").add({
 		{ "<leader>f", group = "Find", icon = "" },
@@ -37,6 +40,7 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>dp", desc = "Previous diagnostic" },
 		{ "<leader>dt", desc = "Toggle diagnostics" },
 		{ "<leader>e", desc = "Toggle file explorer" },
+		{ "<leader>fc", desc = "Colorschemes" },
 		{ "<leader>fh", desc = "Help tags" },
 		{ "<leader>fp", desc = "Switch project" },
 		{ "<leader>fw", desc = "Grep word under cursor" },
@@ -95,6 +99,7 @@ require("lazyload").on_vim_enter(function()
 		watch_gitdir = { interval = 5000 },
 		current_line_blame = false, -- disabled: causes blame lookups per line
 		update_debounce = 500,
+		preview_config = { border = "rounded" },
 	})
 
 	-- 6. tiny-inline-diagnostic.nvim — inline diagnostics
@@ -228,4 +233,10 @@ require("lazyload").on_vim_enter(function()
 		{ src = "https://github.com/aikhe/wrapped.nvim" },
 	})
 	vim.keymap.set("n", "<leader>ow", "<cmd>WrappedNvim<CR>", { desc = "Wrapped dashboard" })
+
+	-- 14. tobira.nvim — vim command learning from usage habits
+	vim.pack.add({
+		{ src = "https://github.com/kamegoro/tobira.nvim" },
+	})
+	require("tobira").setup({})
 end)

@@ -47,16 +47,17 @@ vim.opt.cursorlineopt = "line"
 -- 	end,
 -- })
 
--- Statusline mode colors (using Alduin palette shades)
-vim.api.nvim_create_autocmd("ColorScheme", {
-	callback = function()
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = "#121212", bg = "#dfdfaf" })   -- soft yellow
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeInsert", { fg = "#121212", bg = "#87afaf" })   -- alduin cyan
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#121212", bg = "#af8787" })   -- alduin soft red
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#121212", bg = "#dfaf87" })  -- soft orange
-		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#dfdfaf", bg = "#af5f5f" })  -- red
-	end,
-})
+-- Statusline mode colors (disabled — use theme defaults instead)
+-- vim.api.nvim_create_autocmd("ColorScheme", {
+-- 	callback = function()
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = "#121212", bg = "#dfdfaf" })
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeInsert", { fg = "#121212", bg = "#87afaf" })
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#121212", bg = "#af8787" })
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#121212", bg = "#dfaf87" })
+-- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#dfdfaf", bg = "#af5f5f" })
+-- 		vim.api.nvim_set_hl(0, "LineNr", { fg = "#dfdfaf" })
+-- 	end,
+-- })
 vim.opt.signcolumn = "yes" -- dedicated sign column
 vim.opt.sidescrolloff = 8
 
@@ -136,6 +137,22 @@ end, { desc = "Help tags" })
 vim.keymap.set("n", "<leader>fd", function()
 	Snacks.picker.diagnostics()
 end, { desc = "Diagnostics" })
+
+vim.keymap.set("n", "<leader>fc", function()
+	local allowed = { "alduin", "flume", "south", "nordic" }
+	local installed = vim.fn.getcompletion("", "color")
+	local filtered = vim.tbl_filter(function(name)
+		return vim.tbl_contains(allowed, name)
+	end, installed)
+	vim.ui.select(filtered, {
+		prompt = "  Pick a colorscheme",
+		format_item = function(item)
+			return item
+		end,
+	}, function(choice)
+		if choice then vim.cmd.colorscheme(choice) end
+	end)
+end, { desc = "Colorschemes" })
 
 vim.keymap.set("n", "<leader>fz", function()
 	Snacks.picker.recent()
@@ -261,13 +278,8 @@ vim.keymap.set("n", "<leader>zo", "zR", { desc = "Open all folds" })
 vim.keymap.set("n", "<leader>zc", "zM", { desc = "Close all folds" })
 
 -- Diagnostic navigation (under <leader>d)
-vim.keymap.set("n", "<leader>dn", "<cmd>lua vim.diagnostic.jump({ count = 1 })()<CR>", { desc = "Next diagnostic" })
-vim.keymap.set(
-	"n",
-	"<leader>dp",
-	"<cmd>lua vim.diagnostic.jump({ count = -1 })()<CR>",
-	{ desc = "Previous diagnostic" }
-)
+vim.keymap.set("n", "<leader>dn", "<cmd>lua vim.diagnostic.jump({ count = 1 })<CR>", { desc = "Next diagnostic" })
+vim.keymap.set("n", "<leader>dp", "<cmd>lua vim.diagnostic.jump({ count = -1 })<CR>", { desc = "Previous diagnostic" })
 vim.keymap.set("n", "<leader>dt", function()
 	local bufnr = vim.api.nvim_get_current_buf()
 	local enabled = vim.diagnostic.is_enabled({ bufnr = bufnr })
@@ -280,11 +292,3 @@ vim.keymap.set("n", "<leader>hh", "<cmd>nohlsearch<CR>", { desc = "Clear search 
 -- Quickfix navigation
 vim.keymap.set("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix" })
 vim.keymap.set("n", "[q", "<cmd>cprev<CR>", { desc = "Previous quickfix" })
-
--- Jump between highlighted word references
-vim.keymap.set("n", "]w", function()
-	require("snacks.words").jump(1)
-end, { desc = "Next word reference" })
-vim.keymap.set("n", "[w", function()
-	require("snacks.words").jump(-1)
-end, { desc = "Previous word reference" })
