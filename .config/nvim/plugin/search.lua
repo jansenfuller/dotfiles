@@ -8,7 +8,7 @@ require("lazyload").on_vim_enter(function()
 			enabled = true,
 			layout = { border = "rounded" },
 		},
-		explorer = { enabled = true },
+		explorer = { enabled = true, hidden = true },
 		words = { enabled = false },
 		rename = { enabled = true },
 	})

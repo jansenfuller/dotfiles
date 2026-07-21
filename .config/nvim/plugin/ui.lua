@@ -66,6 +66,7 @@ require("lazyload").on_vim_enter(function()
 		{ "<leader>ln", desc = "Rename symbol" },
 		{ "<leader>lr", desc = "LSP references" },
 		{ "<leader>ls", desc = "LSP symbols" },
+		{ "<leader>lS", desc = "Start LSP manually" },
 		{ "<leader>mm", desc = "Toggle minimap" },
 		{ "<leader>tf", desc = "Run test file" },
 		{ "<leader>tn", desc = "Run nearest test" },

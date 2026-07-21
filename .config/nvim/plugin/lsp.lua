@@ -133,6 +133,17 @@ require("lazyload").on_vim_enter(function()
 			vim.keymap.set("n", "<leader>lc", vim.lsp.buf.code_action, opts)
 			-- Inlay hints: show inferred types for TypeScript + Rust
 			vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+			-- Manually start an LSP server for irregular file extensions
+			vim.keymap.set("n", "<leader>lS", function()
+				vim.ui.input({ prompt = "LSP server name: " }, function(name)
+					if name and name ~= "" then
+						local ok, err = pcall(require("lspconfig")[name].setup, { bufnr = ev.buf })
+						if not ok then
+							vim.notify("Failed to start " .. name .. ": " .. tostring(err), vim.log.levels.ERROR)
+						end
+					end
+				end)
+			end, { buffer = ev.buf, desc = "Start LSP manually" })
 		end,
 	})
 
