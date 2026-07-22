@@ -75,8 +75,25 @@ function M.active()
 		end
 	end
 
-	-- LSP name from cache (always present)
-	local lsp = cache[vim.api.nvim_get_current_buf()] or "No LSP"
+	-- LSP name (queried directly, not cached — always up to date)
+	local lsp = (function()
+		local clients = vim.lsp.get_clients({ bufnr = 0 })
+		local names = {}
+		for _, c in ipairs(clients) do
+			if c.name ~= "copilot" and c.name ~= "null-ls" then
+				table.insert(names, c.name)
+			end
+		end
+		if #names == 0 and #clients > 0 then
+			for _, c in ipairs(clients) do
+				table.insert(names, c.name)
+			end
+		end
+		if #names > 0 then
+			return table.concat(names, ", ")
+		end
+		return "No LSP"
+	end)()
 	local enc = vim.bo.fenc ~= "" and vim.bo.fenc:upper() or nil
 	local ff = vim.bo.ff == "unix" and "LF" or vim.bo.ff == "dos" and "CRLF" or ""
 
