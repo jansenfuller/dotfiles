@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/gotgenes/pi-packages/main/packages/pi-permission-system/schemas/permissions.schema.json",
+
+  "shellTools": {
+    "ctx_shell": { "commandArgument": "command" }
+  },
+
+  "permission": {
+    "*": "ask",
+
+    "todo": "allow",
+    "ask_user_question": "allow",
+
+    "web_search": "allow",
+    "fetch_content": "allow",
+    "get_search_content": "allow",
+
+    "read": "allow",
+    "edit": "allow",
+    "write": "allow",
+    "ctx_*": "allow",
+    "lean_ctx": "allow",
+
+    "bash": {
+      "*": "allow"
+    },
+
+    "external_directory": {
+      "*": "ask",
+      "/tmp/*": "allow"
+    }
+  }
+}
