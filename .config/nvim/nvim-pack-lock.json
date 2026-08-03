@@ -13,7 +13,7 @@
       "src": "https://github.com/pocco81/auto-save.nvim"
     },
     "blink.cmp": {
-      "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
+      "rev": "005f8c859997f40f65bfbec5f4b400c45fecc06a",
       "src": "https://github.com/Saghen/blink.cmp",
       "version": "1.0.0 - 2.0.0"
     },
@@ -114,7 +114,7 @@
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-web-devicons": {
-      "rev": "0ca28b61a04fe7426cefbdd52c2647ef0e335b5f",
+      "rev": "2ae6958df7ced50baac5035cec0c15799eedfbf7",
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "plenary.nvim": {
@@ -130,7 +130,7 @@
       "src": "https://github.com/folke/snacks.nvim"
     },
     "south.nvim": {
-      "rev": "0d907b6309b33cfba1622e75ee7aa9d750e1dfbb",
+      "rev": "605c7efede69435ebebc2b45e5f131df1e158b4b",
       "src": "https://github.com/arnauKL/south.nvim"
     },
     "tiny-inline-diagnostic.nvim": {
