@@ -1,3 +1,37 @@
+-- Disable unused providers — skip host probing at startup (python3/ruby/perl
+-- RPC checks, node health checks) for interpreters this config never uses.
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_node_provider = 0
+
+-- Silence DEBUG-level vim.notify calls (e.g. tobira.nvim's startup "key is
+-- remapped" scan) without touching the plugins that emit them.
+-- Re-applied after VimEnter: a plugin that replaces vim.notify wholesale
+-- (noice.nvim, nvim-notify) would otherwise silently drop this filter, and
+-- the spam would return with no obvious cause.
+local function install_notify_filter()
+	local inner = vim.notify
+	if rawget(vim, "_notify_filter_installed") == inner then
+		return
+	end
+	local wrapper = function(msg, level, opts)
+		if level == vim.log.levels.DEBUG then
+			return
+		end
+		return inner(msg, level, opts)
+	end
+	vim.notify = wrapper
+	vim._notify_filter_installed = wrapper
+end
+install_notify_filter()
+vim.api.nvim_create_autocmd("VimEnter", {
+	once = true,
+	callback = function()
+		vim.schedule(install_notify_filter)
+	end,
+})
+
 -- Line numbers
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -6,8 +40,14 @@ vim.opt.relativenumber = true
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
-vim.opt.smartindent = true
+-- smartindent is a legacy C-style heuristic that fights both treesitter's
+-- indentexpr (set per-filetype in plugin/treesitter.lua) and ftplugin rules,
+-- and misindents '#' comments in Ruby/Python/shell. autoindent alone is the
+-- correct fallback for filetypes with no indentexpr.
+vim.opt.smartindent = false
+vim.opt.autoindent = true
 vim.opt.swapfile = false
+vim.opt.undofile = true -- persistent undo history across sessions
 vim.opt.inccommand = "split"
 
 -- UI
@@ -16,48 +56,15 @@ vim.opt.guifont = "JetBrainsMono Nerd Font Mono:h12"
 vim.opt.laststatus = 3
 vim.opt.showtabline = 2 -- always show buffer tabs
 vim.opt.pumblend = 0 -- no popup transparency (reduces escape sequences)
+-- Global float border. Replaces the removed per-map `vim.lsp.buf.hover({border=...})`
+-- override (Neovim 0.12 maps K to hover by default, so redefining it just to
+-- set a border was redundant) and applies to every float that doesn't opt out.
+vim.opt.winborder = "rounded"
 vim.opt.mouse = "a"
 vim.opt.clipboard = "unnamedplus"
 vim.opt.fileformat = "unix" -- default to unix line endings
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "line"
-
--- Highlight overrides (commented out — now using nordic.nvim)
--- vim.api.nvim_create_autocmd("ColorScheme", {
--- 	callback = function()
--- 		vim.api.nvim_set_hl(0, "CursorLine", { bg = "#282C33" })
--- 		local normal_fg = vim.api.nvim_get_hl(0, { id = vim.api.nvim_get_hl_id_by_name("Normal") }).fg
--- 		vim.api.nvim_set_hl(0, "LineNr", { fg = normal_fg })
--- 		vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#282C33", bg = "#101112" })
--- 		vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#99AE63" })
--- 		vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#D8C27A" })
--- 		vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#B27B78" })
--- 		vim.api.nvim_set_hl(0, "BlinkIndent", { fg = "#383E47" })
--- 		vim.api.nvim_set_hl(0, "BlinkIndentScope", { fg = "#586270" })
--- 		vim.api.nvim_set_hl(0, "StatusLine", { fg = "#BCC5D1", bg = "#101112" })
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = "#101112", bg = "#99AE63" })
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeInsert", { fg = "#101112", bg = "#7495B6" })
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#101112", bg = "#B59CD8" })
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#101112", bg = "#D8C27A" })
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#FDFEFF", bg = "#B27B78" })
--- 		vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#586270", bg = "#101112" })
--- 		vim.api.nvim_set_hl(0, "SnacksPickerDir", { fg = "#878889" })
--- 		vim.api.nvim_set_hl(0, "TabLine", { fg = "#798494", bg = "#282C33" })
--- 		vim.api.nvim_set_hl(0, "TabLineSel", { fg = "#FDFEFF", bg = "#383E47" })
--- 	end,
--- })
-
--- Statusline mode colors (disabled — use theme defaults instead)
--- vim.api.nvim_create_autocmd("ColorScheme", {
--- 	callback = function()
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = "#121212", bg = "#dfdfaf" })
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeInsert", { fg = "#121212", bg = "#87afaf" })
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeVisual", { fg = "#121212", bg = "#af8787" })
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeCommand", { fg = "#121212", bg = "#dfaf87" })
--- 		vim.api.nvim_set_hl(0, "MiniStatuslineModeOther", { fg = "#dfdfaf", bg = "#af5f5f" })
--- 		vim.api.nvim_set_hl(0, "LineNr", { fg = "#dfdfaf" })
--- 	end,
--- })
 
 -- Ensure float borders are always visible regardless of colorscheme
 vim.api.nvim_create_autocmd("ColorScheme", {
@@ -82,7 +89,11 @@ vim.opt.incsearch = true
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
--- Folds (indentation-based, more predictable than treesitter)
+-- Folds: indent-based fallback here for filetypes with no treesitter parser.
+-- plugin/treesitter.lua overrides this per-window to foldmethod=expr with
+-- vim.treesitter.foldexpr() once a parser attaches — AST-based folds match
+-- a block's actual header-to-footer range, so a function's `def foo():`
+-- line folds *that* function, not whatever indent-level fold sits above it.
 vim.opt.foldmethod = "indent"
 vim.opt.foldlevel = 99
 vim.opt.foldopen:remove("hor") -- don't open folds on horizontal movement
@@ -169,6 +180,35 @@ vim.keymap.set("n", "<leader>fd", function()
 	Snacks.picker.diagnostics()
 end, { desc = "Diagnostics" })
 
+local extra_colorschemes_added = false
+vim.keymap.set("n", "<leader>fc", function()
+	-- Alduin/flume/south are only ever needed here, so only add them to rtp
+	-- (clone if missing) the first time this picker is opened, not eagerly
+	-- at startup.
+	if not extra_colorschemes_added then
+		vim.pack.add({
+			{ src = "https://github.com/AlessandroYorba/Alduin" },
+			{ src = "https://github.com/mitander/flume.nvim" },
+			{ src = "https://github.com/arnauKL/south.nvim" },
+		})
+		extra_colorschemes_added = true
+	end
+
+	local allowed = { "alduin", "flume", "south", "nordic" }
+	local installed = vim.fn.getcompletion("", "color")
+	local filtered = vim.tbl_filter(function(name)
+		return vim.tbl_contains(allowed, name)
+	end, installed)
+	vim.ui.select(filtered, {
+		prompt = "  Pick a colorscheme",
+		format_item = function(item)
+			return item
+		end,
+	}, function(choice)
+		if choice then vim.cmd.colorscheme(choice) end
+	end)
+end, { desc = "Colorschemes" })
+
 vim.keymap.set("n", "<leader>fz", function()
 	Snacks.picker.recent()
 end, { desc = "Recent files" })
@@ -194,10 +234,8 @@ end, { desc = "Switch project" })
 vim.keymap.set("n", "<leader>fw", function()
 	Snacks.picker.grep({ args = { "--hidden", "-w", vim.fn.expand("<cword>") } })
 end, { desc = "Grep word under cursor" })
-vim.keymap.set("n", "<leader>ld", vim.lsp.buf.definition, { desc = "Go to definition" })
-vim.keymap.set("n", "<leader>li", vim.lsp.buf.implementation, { desc = "Go to implementation" })
-vim.keymap.set("n", "<leader>lk", vim.lsp.buf.hover, { desc = "Hover documentation" })
-vim.keymap.set("n", "<leader>lr", vim.lsp.buf.references, { desc = "LSP references" })
+-- NOTE: <leader>ld/li/lk/lr moved to plugin/lsp.lua's LspAttach autocmd —
+-- buffer-local, so they don't silently misfire in buffers with no LSP client.
 vim.keymap.set("n", "<leader>lm", function()
 	Snacks.rename.file()
 end, { desc = "Rename file" })
@@ -241,21 +279,39 @@ local function close_buffer()
 	local listed = vim.tbl_filter(function(b)
 		return vim.bo[b].buflisted
 	end, vim.api.nvim_list_bufs())
+
+	-- Position of the current buffer within the listed set.
+	-- nil when the current buffer isn't listed at all — terminal, help,
+	-- explorer/picker, quickfix, grug-far, neotest output, mini.map, etc.
+	-- (previously this fell through to `idx % #listed` and threw
+	-- "attempt to perform arithmetic on local 'idx'").
+	local idx
+	for i, b in ipairs(listed) do
+		if b == bufnr then
+			idx = i
+			break
+		end
+	end
+
+	if not idx then
+		-- Not part of the buffer cycle, so don't disturb the listed set —
+		-- just dismiss this one. Terminals report as modified and refuse a
+		-- soft delete, so fall back to closing the window.
+		if not pcall(vim.api.nvim_buf_delete, bufnr, { force = false }) then
+			pcall(vim.cmd, "close")
+		end
+		return
+	end
+
 	if #listed <= 1 then
 		vim.cmd("enew")
 		pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
-	else
-		local idx
-		for i, b in ipairs(listed) do
-			if b == bufnr then
-				idx = i
-				break
-			end
-		end
-		local next_buf = listed[(idx % #listed) + 1]
-		vim.api.nvim_set_current_buf(next_buf)
-		pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
+		return
 	end
+
+	local next_buf = listed[(idx % #listed) + 1]
+	vim.api.nvim_set_current_buf(next_buf)
+	pcall(vim.api.nvim_buf_delete, bufnr, { force = false })
 end
 vim.keymap.set("n", "<leader>bd", close_buffer, { desc = "Close buffer" })
 vim.keymap.set("n", "<leader>x", close_buffer, { desc = "Close buffer" })

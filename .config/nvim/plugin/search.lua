@@ -15,9 +15,10 @@ local function snacks_module()
 				enabled = true,
 				layout = { border = "rounded" },
 			},
-			explorer = { enabled = true, hidden = true },
+			explorer = { enabled = true },
 			words = { enabled = false },
 			rename = { enabled = true },
+			quickfile = { enabled = true }, -- render the buffer before plugins finish loading
 		})
 		return require("snacks")
 	end)
@@ -29,14 +30,16 @@ _G.Snacks = setmetatable({}, {
 	end,
 })
 
--- ── grug-far.nvim: interactive find & replace (lazy: first <leader>fr) ──
-local function open_grug_far()
-	lazyload.demand("grug-far", function()
-		lazyload.pack_load({
+-- ── grug-far.nvim: interactive find & replace ────────────────
+-- Lazily loaded — only needed the moment you actually open it.
+local grug_loaded = false
+vim.keymap.set("n", "<leader>fr", function()
+	if not grug_loaded then
+		grug_loaded = true
+		vim.pack.add({
 			{ src = "https://github.com/MagicDuck/grug-far.nvim" },
 		})
 		require("grug-far").setup({})
-	end)
+	end
 	require("grug-far").open()
-end
-vim.keymap.set("n", "<leader>fr", open_grug_far, { desc = "Find & replace in CWD" })
+end, { desc = "Find & replace in CWD" })

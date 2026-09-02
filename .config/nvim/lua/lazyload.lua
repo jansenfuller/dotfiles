@@ -18,33 +18,27 @@ local queue = {}
 vim.api.nvim_create_autocmd("VimEnter", {
 	once = true,
 	callback = function()
-		-- Step 1: Run sync callbacks first
-		for _, entry in ipairs(queue) do
-			if entry.sync then
-				entry.fn()
-			end
-		end
-		-- Step 2: Then async callbacks (via vim.schedule for FIFO ordering)
-		for _, entry in ipairs(queue) do
-			if not entry.sync then
-				vim.schedule(entry.fn)
-			end
+		for _, fn in ipairs(queue) do
+			-- Each callback is scheduled individually so one plugin block
+			-- erroring can't prevent later ones from running.
+			vim.schedule(function()
+				local ok, err = pcall(fn)
+				if not ok then
+					vim.notify("lazyload: deferred setup failed: " .. tostring(err), vim.log.levels.ERROR)
+				end
+			end)
 		end
 		queue = nil
 	end,
 })
 
--- Run fn once after all startup work, before the first frame is painted.
-function M.on_vim_enter(fn, opts)
-	opts = opts or {}
+--- Defer `fn` until after VimEnter (or run it now if VimEnter already fired).
+--- @param fn function
+function M.on_vim_enter(fn)
 	if queue then
-		table.insert(queue, { fn = fn, sync = opts.sync or false })
+		table.insert(queue, fn)
 	else
-		if opts.sync then
-			fn()
-		else
-			vim.schedule(fn)
-		end
+		vim.schedule(fn)
 	end
 end
 

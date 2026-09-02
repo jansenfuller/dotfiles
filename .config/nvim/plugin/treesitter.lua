@@ -48,37 +48,80 @@ local function ensure_treesitter()
 	end)
 end
 
-vim.api.nvim_create_autocmd("FileType", {
-	pattern = vim.tbl_keys(ft_parsers),
-	callback = function(ev)
-		local ft = vim.bo[ev.buf].filetype
-		local parsers = ft_parsers[ft]
-		if not parsers then
+	-- foldmethod/foldexpr are WINDOW-local, not buffer-local. So they must be
+	-- re-evaluated whenever a window changes which buffer it shows -- otherwise
+	-- a window that once displayed a treesitter buffer keeps the treesitter
+	-- foldexpr forever, and a later non-parser buffer (.txt/.log/.env) in that
+	-- same window gets NO folds at all (foldlevel 0, `za` -> E490).
+	-- highlighter.active[buf] is set exactly when vim.treesitter.start()
+	-- succeeded for that buffer, and reading it has no side effects.
+	local function apply_fold_style(win, buf)
+		if not (vim.api.nvim_win_is_valid(win) and vim.api.nvim_buf_is_valid(buf)) then
 			return
 		end
-		local ts = ensure_treesitter() -- loads the plugin on the first match
-		if not installed[ft] then
-			installed[ft] = true -- only request an install once per filetype
-			ts.install(parsers)
+		if vim.treesitter.highlighter.active[buf] then
+			-- AST-based folds: a block's fold range matches its syntax node,
+			-- so the header line ("function foo()") folds *that* block rather
+			-- than the indent-level fold above it.
+			vim.wo[win].foldmethod = "expr"
+			vim.wo[win].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+		else
+			vim.wo[win].foldmethod = "indent"
+			vim.wo[win].foldexpr = "0"
 		end
-		-- Highlighting: parsers compile asynchronously, so keep retrying
-		-- until the buffer is actually highlighted (first-open only, ~2 min cap)
-		local attempts = 0
-		local function start_highlight()
-			if not vim.api.nvim_buf_is_valid(ev.buf) then
+	end
+
+	-- Re-apply whenever a buffer is displayed in a window.
+	vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {
+		callback = function(ev)
+			apply_fold_style(vim.api.nvim_get_current_win(), ev.buf)
+		end,
+	})
+
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = vim.tbl_keys(ft_parsers),
+		callback = function(ev)
+			local ft = vim.bo[ev.buf].filetype
+			local parsers = ft_parsers[ft]
+			if not parsers then
 				return
 			end
-			local ok, started = pcall(vim.treesitter.start, ev.buf)
-			if ok and started then
-				return
+
+			local function start_highlighting()
+				if not vim.api.nvim_buf_is_valid(ev.buf) then
+					return
+				end
+				-- pcall: the parser can still be absent here if a previous
+				-- install failed (installed[ft] is set optimistically), and
+				-- an uncaught error would fire on every open of this filetype.
+				if not pcall(vim.treesitter.start, ev.buf) then
+					return
+				end
+				for _, win in ipairs(vim.api.nvim_list_wins()) do
+					if vim.api.nvim_win_get_buf(win) == ev.buf then
+						apply_fold_style(win, ev.buf)
+					end
+				end
 			end
-			attempts = attempts + 1
-			if attempts < 120 then
-				vim.defer_fn(start_highlight, 1000)
+
+			if not installed[ft] then
+				installed[ft] = true
+				-- Parser may not be on disk yet — starting highlighting before
+				-- install() finishes silently no-ops. Only start once install
+				-- (a no-op if already present) actually resolves.
+				ensure_treesitter().install(parsers):await(function(err)
+					if err then
+						-- let a later buffer of this filetype retry
+						installed[ft] = nil
+						return
+					end
+					vim.schedule(start_highlighting)
+				end)
+			else
+				start_highlighting()
 			end
-		end
-		start_highlight()
-		-- Indentation
-		vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-	end,
-})
+
+			-- Indentation
+			vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+		end,
+	})

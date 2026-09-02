@@ -1,22 +1,100 @@
 local lazyload = require("lazyload")
 
--- ═══════════════════════════════════════════════════════════════
--- Startup batch (VimEnter, before first frame) — only what the first
--- render needs: devicons (statusline icons), mini modules, tobira.
--- ═══════════════════════════════════════════════════════════════
 lazyload.on_vim_enter(function()
-	-- 1. nvim-web-devicons — MUST load before anything renders icons
-	lazyload.pack_load({
-		{ src = "https://github.com/nvim-tree/nvim-web-devicons" },
+	-- All plugins used in this file, added to rtp in one batch instead of one
+	-- vim.pack.add() call per plugin. nvim-web-devicons must resolve before
+	-- bufferline/snacks require() it, which is satisfied here since nothing
+	-- below requires anything until after this call returns.
+	vim.pack.add({
+		{ src = "https://github.com/nvim-tree/nvim-web-devicons" }, -- 1.
+		{ src = "https://github.com/folke/which-key.nvim" }, -- 2.
+		{ src = "https://github.com/saghen/blink.indent" }, -- 4.
+		{ src = "https://github.com/lewis6991/gitsigns.nvim" }, -- 5.
+		{ src = "https://github.com/rachartier/tiny-inline-diagnostic.nvim" }, -- 6.
+		{ src = "https://github.com/echasnovski/mini.nvim" }, -- 7.
+		{ src = "https://github.com/akinsho/bufferline.nvim" }, -- 8.
+		{ src = "https://github.com/wakatime/vim-wakatime" }, -- 10.
+		{ src = "https://github.com/kamegoro/tobira.nvim" }, -- 14.
 	})
+
+	-- 1. nvim-web-devicons — MUST load first (needed by bufferline + snacks)
 	require("nvim-web-devicons").setup({
 		default = true,
 	})
 
-	-- 7. mini.statusline — lightweight statusline
-	lazyload.pack_load({
-		{ src = "https://github.com/echasnovski/mini.nvim" },
+	-- 2. which-key.nvim — auto-shows leader keybindings popup
+	require("which-key").setup({
+		delay = 50,
+		win = { border = "rounded" },
+		plugins = {
+			presets = {
+				operators = false,
+				motions = false,
+				text_objects = false,
+				windows = false,
+				nav = false,
+				z = false,
+				g = false,
+			},
+		},
 	})
+	-- Group labels only. Per-key descriptions come from each vim.keymap.set
+	-- call's `desc` field — which-key reads those automatically, so a
+	-- hand-maintained duplicate list here would just drift out of sync.
+	require("which-key").add({
+		{ "<leader>f", group = "Find", icon = "" },
+		{ "<leader>g", group = "Git" },
+		{ "<leader>b", group = "Buffer" },
+		{ "<leader>d", group = "Diagnostic" },
+		{ "<leader>m", group = "Format" },
+		{ "<leader>h", group = "Hunk", icon = "" },
+		{ "<leader>l", group = "LSP" },
+		{ "<leader>t", group = "Test" },
+		{ "<leader>z", group = "Fold" },
+		{ "<leader>o", group = "Other" },
+	})
+
+	-- 4. blink.indent — fast indent guides
+	require("blink.indent").setup({
+		scope = {
+			enabled = true,
+			indent_at_cursor = true,
+		},
+	})
+
+	-- 5. gitsigns.nvim — git gutter signs (+ ~ ─)
+	require("gitsigns").setup({
+		signs = {
+			add = { text = "│" },
+			change = { text = "│" },
+			delete = { text = "󰍵" },
+			topdelete = { text = "‾" },
+			changedelete = { text = "~" },
+			untracked = { text = "│" },
+		},
+		signcolumn = true,
+		numhl = false, -- sign column + statusline diff counts already cover this
+		linehl = false,
+		word_diff = false,
+		watch_gitdir = { interval = 5000 },
+		current_line_blame = false, -- disabled: causes blame lookups per line
+		update_debounce = 500,
+		preview_config = { border = "rounded" },
+	})
+
+	-- 6. tiny-inline-diagnostic.nvim — inline diagnostics
+	require("tiny-inline-diagnostic").setup({
+		preset = "minimal",
+		options = {
+			throttle = 50,
+			softwrap = 40,
+			multilines = { enabled = true },
+			show_code = false,
+			show_source = { enabled = true, if_many = true },
+		},
+	})
+
+	-- 7. mini.statusline — lightweight statusline
 	require("mini.statusline").setup({
 		use_icons = true,
 		set_vim_settings = true,
@@ -215,9 +293,6 @@ lazyload.on_ui_enter(function()
 
 	-- 8. bufferline.nvim — tabufline
 	local bg_lighter = "#2a2b2e"
-	lazyload.pack_load({
-		{ src = "https://github.com/akinsho/bufferline.nvim" },
-	})
 	require("bufferline").setup({
 		highlights = {
 			separator = { fg = bg_lighter, bg = nil },
@@ -235,10 +310,53 @@ lazyload.on_ui_enter(function()
 		},
 	})
 
+	-- 9. Terminal (snacks.terminal) — floating toggle via <leader>i / <A-i>
+	local function toggle_terminal()
+		Snacks.terminal.toggle(nil, { win = { position = "float", border = "rounded", width = 0.65, height = 0.65 } })
+	end
+	vim.keymap.set("n", "<leader>i", toggle_terminal, { desc = "Toggle terminal" })
+	vim.keymap.set("n", "<A-i>", toggle_terminal, { desc = "Toggle terminal" })
+	vim.keymap.set("t", "<A-i>", toggle_terminal, { desc = "Toggle terminal" })
+
 	-- 10. wakatime/vim-wakatime — automatic time tracking
-	lazyload.pack_load({
-		{ src = "https://github.com/wakatime/vim-wakatime" },
-	})
+
+	-- 11. Periodic auto-save (every 60s, no format)
+	vim.defer_fn(function()
+		local function auto_save()
+			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+				if vim.bo[buf].modified and vim.bo[buf].buflisted and vim.fn.bufname(buf) ~= "" then
+					-- nvim_buf_call runs `write` with `buf` as current buffer
+					-- (and restores the real current buffer after), instead
+					-- of always writing whatever buffer happens to be active.
+					pcall(vim.api.nvim_buf_call, buf, function()
+						vim.cmd("silent write")
+					end)
+				end
+			end
+			-- Always reschedule — a quiet tick (nothing modified) must not
+			-- permanently kill the timer for the rest of the session.
+			vim.defer_fn(auto_save, 60000)
+		end
+		auto_save()
+	end, 60000)
+
+	-- 13. wrapped.nvim — year-in-review dashboard (:WrappedNvim)
+	-- Lazily loaded: two plugins (plus its `volt` dependency) for a novelty
+	-- dashboard shouldn't sit on 'runtimepath' at every startup.
+	local wrapped_loaded = false
+	vim.keymap.set("n", "<leader>ow", function()
+		if not wrapped_loaded then
+			wrapped_loaded = true
+			vim.pack.add({
+				{ src = "https://github.com/nvzone/volt" }, -- wrapped.nvim dependency
+				{ src = "https://github.com/aikhe/wrapped.nvim" },
+			})
+		end
+		vim.cmd("WrappedNvim")
+	end, { desc = "Wrapped dashboard" })
+
+	-- 14. tobira.nvim — vim command learning from usage habits
+	require("tobira").setup({})
 end)
 
 -- ═══════════════════════════════════════════════════════════════
