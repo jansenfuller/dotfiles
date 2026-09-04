@@ -23,13 +23,8 @@ function hcurl() { curl --header "Host: $1" ${@:2} ;}
 alias vim='nvim'
 
 # git
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit -m'
 alias gpl='git pull'
 alias gpu='git push'
-alias gch='git checkout'
-alias gnb='git checkout -b'
 alias forgejo='tea'
 
 # Kubernetes
@@ -40,6 +35,8 @@ alias kd='kubectl delete -f'
 alias kdf='kubectl delete --force -f'
 alias kc='kubectl config use-context'
 alias t='talosctl'
+
+alias bu='brew update && brew upgrade'
 
 #################################################
 # Antidote Stuff
