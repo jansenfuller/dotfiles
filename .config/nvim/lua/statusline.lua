@@ -1,43 +1,4 @@
 local M = {}
-local cache = {} -- strong refs: never GC'd mid-session
-
--- Update cache only when LSP state could change
-local group = vim.api.nvim_create_augroup("StatuslineLSP", { clear = true })
-
-vim.api.nvim_create_autocmd({ "BufEnter", "LspAttach", "LspDetach" }, {
-	group = group,
-	callback = function(ev)
-		local clients = vim.lsp.get_clients({ bufnr = ev.buf })
-		local name
-		for _, c in ipairs(clients) do
-			if c.name ~= "copilot" and c.name ~= "null-ls" then
-				name = c.name
-				break
-			end
-		end
-		if not name and #clients > 0 then
-			name = clients[1].name
-		end
-		if name then
-			name = name:gsub("^typescript%-language%-server$", "ts")
-				:gsub("^ruby%-lsp$", "ruby")
-				:gsub("^rust%-analyzer$", "ra")
-				:gsub("^bash-language-server$", "bash")
-				:gsub("^yaml-language-server$", "yaml")
-				:gsub("^elixirls$", "elixir")
-				:gsub("^lua-language-server$", "lua")
-				:gsub("^vtsls$", "ts")
-		end
-		cache[ev.buf] = name -- nil = no LSP
-	end,
-})
-
-vim.api.nvim_create_autocmd("BufWipeout", {
-	group = group,
-	callback = function(ev)
-		cache[ev.buf] = nil
-	end,
-})
 
 function M.active()
 	local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })

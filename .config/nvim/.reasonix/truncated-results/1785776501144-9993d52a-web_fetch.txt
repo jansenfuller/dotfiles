@@ -1,0 +1,875 @@
+https://raw.githubusercontent.com/neovim/neovim/master/runtime/lua/vim/pack.lua
+
+--- @brief
+---
+--- Install, update, and delete external plugins. WARNING: It is still considered
+--- experimental, yet should be stable enough for daily use.
+---
+---Manages plugins only in a dedicated [vim.pack-directory]() (see |packages|):
+---`site/pack/core/opt` subdirectory of "data" |standard-path|. Subdirectory `site` of "data"
+---standard path needs to be part of 'packpath'. It usually is, but might not be
+---in cases like |--clean| or setting |$XDG_DATA_HOME| during startup.
+---Plugin's subdirectory name matches plugin's name in specification.
+---It is assumed that all plugins in the directory are managed exclusively by `vim.pack`.
+---
+---Uses Git to manage plugins and requires present `git` executable.
+---Target plugins should be Git repositories with versions as named tags
+---following semver convention `v<major>.<minor>.<patch>` (with or without `v` prefix).
+---Like `v1.2.0` or `1.2.0`, but not `1.2` or `v1`.
+---
+---The latest state of all managed plugins is stored inside a [vim.pack-lockfile]()
+---located at |'packlockfile'|.
+---It is a JSON file that is used to persistently track data about plugins.
+---For a more robust config treat lockfile like its part: put under version control, etc.
+---In this case all plugins from the lockfile will be installed at once (in alphabetical order) and
+---at lockfile's revision (instead of inferring from `version`). This is done on the very first
+---`vim.pack` function call to ensure that lockfile is aligned with what is actually on the disk.
+---Lockfile should not be edited by hand. Corrupted data for installed plugins is repaired
+---(including after deleting whole file), but `version` fields will be missing
+---for not yet added plugins.
+---
+---[vim.pack-examples]()
+---
+---Basic install and management ~
+---
+---- Add |vim.pack.add()| call(s) to 'init.lua':
+---```lua
+---
+---vim.pack.add({
+---   -- Install "plugin1" and use default branch (usually `main` or `master`)
+---   'https://github.com/user/plugin1',
+---
+---   -- Same as above, but using a table (allows setting other options)
+---   { src = 'https://github.com/user/plugin1' },
+---
+---   -- Specify plugin's name (here the plugin will be called "plugin2"
+---   -- instead of "generic-name")
+---   { src = 'https://github.com/user/generic-name', name = 'plugin2' },
+---
+---   -- Specify version to follow during install and update
+---   {
+---     src = 'https://github.com/user/plugin3',
+---     -- Version constraint, see |vim.version.range()|
+---     version = vim.version.range('1.0'),
+---   },
+---   {
+---     src = 'https://github.com/user/plugin4',
+---     -- Git branch, tag, or commit hash
+---     version = 'main',
+---   },
+---})
+---
+----- Plugin's code can be used directly after `add()`
+---plugin1 = require('plugin1')
+---```
+---
+---- Restart Nvim (for example, with |:restart|). Plugins that were not yet
+---installed will be available on disk after `add()` call. Their revision is
+---taken from |vim.pack-lockfile| (if present) or inferred from the `version`.
+---
+---- To update all plugins with new changes:
+---    - Execute |:packupdate|. This will download updates from source and
+---      show confirmation buffer in a separate tabpage.
+---    - Review changes. To confirm all updates execute |:write|.
+---      To discard updates execute |:quit|.
+---    - (Optionally) |:restart| to start using code from updated plugins.
+---
+---Use shorter source ~
+---
+--- Create custom Lua helpers:
+---
+---```lua
+---
+---local gh = function(x) return 'https://github.com/' .. x end
+---local cb = function(x) return 'https://codeberg.org/' .. x end
+---vim.pack.add({ gh('user/plugin1'), cb('user/plugin2') })
+---```
+---
+---Another approach is to utilize Git's `insteadOf` configuration:
+---- `git config --global url."https://github.com/".insteadOf "gh:"`
+---- `git config --global url."https://codeberg.org/".insteadOf "cb:"`
+---- In 'init.lua': `vim.pack.add({ 'gh:user/plugin1', 'cb:user/plugin2' })`.
+---  These sources will be used verbatim in |vim.pack-lockfile|, so reusing
+---  the config on different machine will require the same Git configuration.
+---
+---Explore installed plugins ~
+---
+---- `:packupdate ++offline`
+---- Navigate between plugins with `[[` and `]]`. List them with `gO`
+---  (|vim.lsp.buf.document_symbol()|).
+---
+---Switch plugin's version and/or source ~
+---
+---- Update 'init.lua' for plugin to have desired `version` and/or `src`.
+---  Let's say, the switch is for plugin named 'plugin1'.
+---- |:restart|. The plugin's state on disk (revision and/or tracked source)
+---  is not yet changed. Only plugin's `version` in |vim.pack-lockfile| is updated.
+---- Execute `:packupdate plugin1`. The plugin's source is updated. If only
+---  switching version, also pass the `++offline` argument.
+---- Review changes and either confirm or discard them. If discarded, revert
+---  `version` change in 'init.lua' as well or you will be prompted again next time
+---  you run `:packupdate`.
+---
+---Freeze plugin from being updated ~
+---
+---- Update 'init.lua' for plugin to have `version` set to current revision.
+---Get it from |vim.pack-lockfile| (plugin's field `rev`; looks like `abc12345`).
+---- |:restart|.
+---
+---Unfreeze plugin to start receiving updates ~
+---
+---- Update 'init.lua' for plugin to have `version` set to whichever version
+---you want it to be updated.
+---- |:restart|.
+---
+---Revert plugin after an update ~
+---
+---- Revert the |vim.pack-lockfile| to the state before the update:
+---    - If Git tracked: `git checkout HEAD -- nvim-pack-lock.json`
+---    - If not tracked: examine log file ("nvim-pack.log" at "log" |standard-path|),
+---      locate the revisions before the latest update, and (carefully) adjust
+---      current lockfile to have those revisions.
+---- |:restart|.
+---- `:packupdate ++offline ++lockfile plugin`.
+---  Read and confirm.
+---
+---Synchronize config across machines ~
+---
+---- On main machine:
+---     - Add |vim.pack-lockfile| to VCS.
+---     - Push to the remote server.
+---- On secondary machine:
+---     - Pull from the server.
+---     - |:restart|. New plugins (not present locally, but present in the lockfile)
+---       are installed at proper revision. If some installation has failed but
+---       you know it should not (like due to bad Internet connection),
+---       revert |vim.pack-lockfile| and |:restart| again.
+---     - `:packupdate ++lockfile`. Read and confirm.
+---     - Manually delete outdated plugins (present locally, but were not present
+---       in the lockfile prior to restart) with `:packdel plugin`.
+---       They can be located by examining the VCS difference of the lockfile
+---       (`git diff -- nvim-pack-lock.json` for Git).
+---
+---Remove plugins from disk ~
+---
+---- Remove plugin specs from |vim.pack.add()| calls in 'init.lua' or they will be
+---  reinstalled later.
+---- |:restart|.
+---- Use |:packdel| with plugin names to remove. Use `:packdel ++all` to delete
+---  all inactive plugins.
+---
+---Check for pending updates ~
+---
+---- Run `vim.pack.get(nil, { offline = false })` and check the output for items
+---  with different `rev` and `rev_to` fields. To not download new updates
+---  from source, use plain `vim.pack.get()`.
+---
+--- <pre>help
+--- Commands                                             *vim.pack-commands* *E5807*
+---
+---                                                      *:packu* *:packupdate* *E5808*
+--- :packu[pdate][!] [++offline] [++lockfile] [name]
+---
+---     Interactively update the specified plugins. Skips confirmation when `!` is
+---     given. If no plugin names are provided, update all plugins.
+---
+---     When `++offline` is given, skip downloading new updates.
+---
+---     When `++lockfile` is given, use revisions from the lockfile.
+---
+---                                         *:packd* *:packdel* *E5809* *E5810* *E5811*
+--- :packd[el][!] {name}
+---
+---     Remove the specified plugins. Can only remove inactive plugins unless `!`
+---     is given.
+---
+--- :packd[el][!] ++all
+---
+---     Remove all inactive plugins. When `!` is given, instead remove all plugins.
+--- </pre>
+---
+---[vim.pack-events]()
+---
+---Performing actions via `vim.pack` functions can trigger these events:
+---- [PackChangedPre]() - before trying to change plugin's state.
+---- [PackChanged]() - after plugin's state has changed.
+---
+---Events are triggered in bulk respecting order of plugins in which they are supplied.
+---First all `PackChangedPre`, then perform all actions, and only after - all
+---`PackChanged` for successful actions. This provides more control for connected
+---plugins, like by specifying dependencies before the plugin itself.
+---
+---The |event-data| has these keys (type: `vim.event.packchanged.data`):
+---- `active` - whether plugin was added via |vim.pack.add()| to current session.
+---- `kind` - one of "install" (install on disk; before loading),
+---  "update" (update already installed plugin; might be not loaded),
+---  "delete" (delete from disk).
+---- `spec` - plugin's specification with defaults made explicit.
+---- `path` - full path to plugin's directory.
+---
+--- These events can be used to execute plugin hooks. For example:
+---```lua
+---local hooks = function(ev)
+---   -- Use available |event-data|
+---   local name, kind = ev.data.spec.name, ev.data.kind
+---
+---   -- Run build script after plugin's code has changed
+---   if name == 'plug-1' and (kind == 'install' or kind == 'update') then
+---     -- Append `:wait()` if you need synchronous execution
+---     vim.system({ 'make' }, { cwd = ev.data.path })
+---   end
+---
+---   -- If action relies on code from the plugin (like user command or
+---   -- Lua code), make sure to explicitly load it first
+---   if name == 'plug-2' and kind == 'update' then
+---     if not ev.data.active then
+---       vim.cmd.packadd('plug-2')
+---     end
+---     vim.cmd('PlugTwoUpdate')
+---     require('plug2').after_update()
+---   end
+---end
+---
+----- If hooks need to run on install, run this before `vim.pack.add()`
+----- To act on install from lockfile, run before very first `vim.pack.add()`
+---vim.api.nvim_create_autocmd('PackChanged', { callback = hooks })
+---```
+
+local api = vim.api
+local uv = vim.uv
+local async = require('vim._async')
+local util = require('vim._core.util')
+local nvim_on = util.nvim_on
+local N_ = vim.fn.gettext
+
+local M = {}
+
+--- @class (private) vim.pack.LockData
+--- @field rev string Latest recorded revision.
+--- @field src string Plugin source.
+--- @field version? string|vim.VersionRange Plugin `version`, as supplied in `spec`.
+
+--- @class (private) vim.pack.Lock
+--- @field plugins table<string, vim.pack.LockData> Map from plugin name to its lock data.
+
+--- @type vim.pack.Lock
+local plugin_lock
+
+--- @return string
+local function get_plug_dir()
+  return vim.fs.joinpath(vim.fn.stdpath('data'), 'site', 'pack', 'core', 'opt')
+end
+
+-- Git ------------------------------------------------------------------------
+
+--- @async
+--- @param cmd string[]
+--- @param cwd? string
+--- @return string
+local function git_cmd(cmd, cwd)
+  -- Use '-c gc.auto=0' to disable `stderr` "Auto packing..." messages
+  cmd = vim.list_extend({ 'git', '-c', 'gc.auto=0' }, cmd)
+  local env = vim.fn.environ() --- @type table<string,string>
+  env.GIT_DIR, env.GIT_WORK_TREE = nil, nil
+  local sys_opts = { cwd = cwd, text = true, env = env, clear_env = true }
+  local out = async.await(3, vim.system, cmd, sys_opts) --- @type vim.SystemCompleted
+  async.await(1, vim.schedule)
+  local stderr = vim.nonnil(out.stderr, '')
+  if out.code ~= 0 then
+    error(stderr)
+  end
+  if stderr ~= '' then
+    vim.schedule(function()
+      vim.notify(stderr:gsub('\n+$', ''), vim.log.levels.WARN)
+    end)
+  end
+  return (assert(out.stdout):gsub('\n+$', ''))
+end
+
+local function parse_semver(x)
+  return vim.version.parse(x, { strict = true })
+end
+
+--- @type vim.Version
+local git_version
+
+local function git_ensure_exec()
+  local ok, sys = pcall(vim.system, { 'git', 'version' })
+  if not ok then
+    error('No `git` executable')
+  end
+  git_version = vim.version.parse(sys:wait().stdout) --[[@as vim.Version]]
+end
+
+--- @async
+--- @param url string
+--- @param path string
+local function git_clone(url, path)
+  local cmd = { 'clone', '--quiet', '--no-checkout' }
+
+  if vim.startswith(url, 'file://') then
+    cmd[#cmd + 1] = '--no-hardlinks'
+  elseif git_version >= parse_semver('2.27.0') then
+    cmd[#cmd + 1] = '--filter=blob:none'
+  end
+
+  vim.list_extend(cmd, { '--origin', 'origin', url, path })
+  git_cmd(cmd, uv.cwd())
+end
+
+--- @async
+--- @param ref string
+--- @param cwd string
+--- @return string
+local function git_get_hash(ref, cwd)
+  -- Using `rev-list -1` shows a commit of reference, while `rev-parse` shows
+  -- hash of reference. Those are different for annotated tags.
+  return git_cmd({ 'rev-list', '-1', ref }, cwd)
+end
+
+--- @async
+--- @param cwd string
+local function git_fetch(cwd)
+  -- Using '--tags --force' means conflicting tags will be synced with remote
+  local args = { 'fetch', '--quiet', '--tags', '--force', '--recurse-submodules=yes', 'origin' }
+  git_cmd(args, cwd)
+end
+
+--- @async
+--- @param cwd string
+--- @return string
+local function git_get_default_branch(cwd)
+  local res = git_cmd({ 'rev-parse', '--abbrev-ref', 'origin/HEAD' }, cwd)
+  return (res:gsub('^origin/', ''))
+end
+
+--- @async
+--- @param cwd string
+--- @return string[]
+local function git_get_branches(cwd)
+  local def_branch = git_get_default_branch(cwd)
+  local cmd = { 'branch', '--remote', '--list', '--format=%(refname:short)', '--', 'origin/**' }
+  local stdout = git_cmd(cmd, cwd)
+  local res = {} --- @type string[]
+  for l in vim.gsplit(stdout, '\n') do
+    local branch = l:match('^origin/(.+)$')
+    local pos = branch == def_branch and 1 or (#res + 1)
+    table.insert(res, pos, branch)
+  end
+  return res
+end
+
+--- @async
+--- @param cwd string
+--- @return string[]
+local function git_get_tags(cwd)
+  local tags = git_cmd({ 'tag', '--list', '--sort=-v:refname' }, cwd)
+  return tags == '' and {} or vim.split(tags, '\n')
+end
+
+-- Plugin operations ----------------------------------------------------------
+
+--- @param msg string|string[]
+--- @param level ('DEBUG'|'TRACE'|'INFO'|'WARN'|'ERROR')?
+local function notify(msg, level)
+  msg = type(msg) == 'table' and table.concat(msg, '\n') or msg
+  vim.notify('vim.pack: ' .. msg, vim.log.levels[level or 'INFO'])
+  vim.cmd.redraw()
+end
+
+--- @param x string|vim.VersionRange
+--- @return boolean
+local function is_version(x)
+  return type(x) == 'string' or (type(x) == 'table' and pcall(x.has, x, '1'))
+end
+
+--- @param x string
+--- @return boolean
+local function is_semver(x)
+  return parse_semver(x) ~= nil
+end
+
+local function is_nonempty_string(x)
+  return type(x) == 'string' and x ~= ''
+end
+
+--- @return string
+local function get_timestamp()
+  return vim.fn.strftime('%Y-%m-%d %H:%M:%S')
+end
+
+--- @class vim.pack.Spec
+---
+--- URI from which to install and pull updates. Any format supported by `git clone` is allowed.
+--- @field src string
+---
+--- Name of plugin. Will be used as directory name. Default: `src` repository name.
+--- @field name? string
+---
+--- Version to use for install and updates. Can be:
+--- - `nil` (no value, default) to use repository's default branch (usually `main` or `master`).
+--- - String to use specific branch, tag, or commit hash.
+--- - Output of |vim.version.range()| to install the greatest/last semver tag
+---   inside the version constraint.
+--- @field version? string|vim.VersionRange
+---
+--- @field data? any Arbitrary data associated with a plugin.
+
+--- @alias vim.pack.SpecResolved { src: string, name: string, version: nil|string|vim.VersionRange, data: any|nil }
+
+--- @param spec string|vim.pack.Spec
+--- @return vim.pack.SpecResolved
+local function normalize_spec(spec)
+  spec = type(spec) == 'string' and { src = spec } or spec
+  vim.validate('spec', spec, 'table')
+  vim.validate('spec.src', spec.src, is_nonempty_string, false, 'non-empty string')
+  local name = spec.name or spec.src:gsub('%.git$', '')
+  name = (type(name) == 'string' and name or ''):match('[^/]+$') or ''
+  vim.validate('spec.name', name, is_nonempty_string, true, 'non-empty string')
+  vim.validate('spec.version', spec.version, is_version, true, 'string or vim.VersionRange')
+  return { src = spec.src, name = name, version = spec.version, data = spec.data }
+end
+
+--- @class (private) vim.pack.PlugInfo
+--- @field err string The latest error when working on plugin. If non-empty,
+---   all further actions should not be done (including triggering events).
+--- @field installed? boolean Whether plugin was successfully installed.
+--- @field updated? boolean Whether plugin was successfully updated.
+--- @field version_str? string `spec.version` with resolved version range.
+--- @field version_ref? string Resolved version as Git reference (if different
+---   from `version_str`).
+--- @field sha_head? string Git hash of HEAD.
+--- @field sha_target? string Git hash of `version_ref`.
+--- @field update_details? string Details about the update:: changelog if HEAD
+---   and target are different, available newer tags otherwise.
+
+--- @class (private) vim.pack.Plug
+--- @field spec vim.pack.SpecResolved
+--- @field path string
+--- @field info vim.pack.PlugInfo Gathered information about plugin.
+
+--- @param spec string|vim.pack.Spec
+--- @param plug_dir string?
+--- @return vim.pack.Plug
+local function new_plug(spec, plug_dir)
+  local spec_resolved = normalize_spec(spec)
+  local path = vim.fs.joinpath(plug_dir or get_plug_dir(), spec_resolved.name)
+  local info = { err = '', installed = plugin_lock.plugins[spec_resolved.name] ~= nil }
+  return { spec = spec_resolved, path = path, info = info }
+end
+
+--- Normalize plug array: gather non-conflicting data from duplicated entries.
+--- @param plugs vim.pack.Plug[]
+--- @return vim.pack.Plug[]
+local function normalize_plugs(plugs)
+  --- @type table<string, { plug: vim.pack.Plug, id: integer }>
+  local plug_map = {}
+  local n = 0
+  for _, p in ipairs(plugs) do
+    -- Collect
+    if not plug_map[p.path] then
+      n = n + 1
+      plug_map[p.path] = { plug = p, id = n }
+    end
+    local p_data = plug_map[p.path]
+    -- TODO(echasnovski): if both versions are `vim.VersionRange`, collect as
+    -- their intersection. Needs `vim.version.intersect`.
+    p_data.plug.spec.version = vim.nonnil(p_data.plug.spec.version, p.spec.version)
+
+    -- Ensure no conflicts
+    local spec_ref = p_data.plug.spec
+    local spec = p.spec
+    if spec_ref.src ~= spec.src then
+      local src_1 = tostring(spec_ref.src)
+      local src_2 = tostring(spec.src)
+      error(('Conflicting `src` for `%s`:\n%s\n%s'):format(spec.name, src_1, src_2))
+    end
+    if spec_ref.version ~= spec.version then
+      local ver_1 = tostring(spec_ref.version)
+      local ver_2 = tostring(spec.version)
+      error(('Conflicting `version` for `%s`:\n%s\n%s'):format(spec.name, ver_1, ver_2))
+    end
+  end
+
+  --- @type vim.pack.Plug[]
+  local res = {}
+  for _, p_data in pairs(plug_map) do
+    res[p_data.id] = p_data.plug
+  end
+  assert(#res == n)
+  return res
+end
+
+--- @param names? string[]
+--- @return vim.pack.Plug[]
+local function plug_list_from_names(names)
+  local p_data_list = M.get(names, { info = false })
+  local plug_dir = get_plug_dir()
+  local plugs = {} --- @type vim.pack.Plug[]
+  for _, p_data in ipairs(p_data_list) do
+    plugs[#plugs + 1] = new_plug(p_data.spec, plug_dir)
+  end
+  return plugs
+end
+
+--- Map from plugin path to its data.
+--- Use map and not array to avoid linear lookup during startup.
+--- @type table<string, { plug: vim.pack.Plug, id: integer }?>
+local active_plugins = {}
+local n_active_plugins = 0
+
+--- @param plugs vim.pack.Plug[]
+--- @param event_name 'PackChangedPre'|'PackChanged'
+--- @param kind 'install'|'update'|'delete'
+local function trigger_events(plugs, event_name, kind)
+  for _, p in ipairs(plugs) do
+    local active = active_plugins[p.path] ~= nil
+    local data = { active = active, kind = kind, spec = vim.deepcopy(p.spec), path = p.path }
+    api.nvim_exec_autocmds(event_name, { pattern = p.path, data = data })
+  end
+end
+
+--- @param action string
+--- @return fun(kind: 'begin'|'report'|'end', percent: integer, fmt: string, ...:any): nil
+local function new_progress_report(action)
+  local progress = { kind = 'progress', source = 'vim.pack', title = 'vim.pack' }
+  local headless = #api.nvim_list_uis() == 0
+
+  return vim.schedule_wrap(function(kind, percent, fmt, ...)
+    progress.status = kind == 'end' and 'success' or 'running'
+    progress.percent = percent
+    local msg = ('%s %s'):format(action, fmt:format(...))
+    progress.id = api.nvim_echo({ { msg } }, kind ~= 'report', progress)
+    -- Force redraw to show installation progress during startup
+    -- TODO: redraw! not needed with ui2.
+    if not headless then
+      vim.cmd.redraw({ bang = true })
+    end
+  end)
+end
+
+local copcall = package.loaded.jit and pcall or require('coxpcall').pcall
+
+local function async_join_run_wait(funs)
+  local n_threads = 2 * (uv.available_parallelism() or 1)
+  --- @async
+  local function joined_f()
+    async.join(n_threads, funs)
+  end
+  async.run(joined_f):wait()
+end
+
+--- Execute function in parallel for each non-errored plugin in the list
+--- @param plug_list vim.pack.Plug[]
+--- @param f async fun(p: vim.pack.Plug)
+--- @param progress_action string
+local function run_list(plug_list, f, progress_action)
+  local report_progress = new_progress_report(progress_action)
+
+  -- Construct array of functions to execute in parallel
+  local n_finished = 0
+  local funs = {} --- @type (async fun())[]
+  for _, p in ipairs(plug_list) do
+    -- Run only for plugins which didn't error before
+    if p.info.err == '' then
+      --- @async
+      funs[#funs + 1] = function()
+        local ok, err = copcall(f, p) --[[@as string]]
+        if not ok then
+          p.info.err = err --- @as string
+        end
+
+        -- Show progress
+        n_finished = n_finished + 1
+        local percent = math.floor(100 * n_finished / #funs)
+        report_progress('report', percent, '(%d/%d) - %s', n_finished, #funs, p.spec.name)
+      end
+    end
+  end
+
+  if #funs == 0 then
+    return
+  end
+
+  -- Run async in parallel but wait for all to finish/timeout
+  report_progress('begin', 0, '(0/%d)', #funs)
+  async_join_run_wait(funs)
+  report_progress('end', 100, '(%d/%d)', #funs, #funs)
+end
+
+local confirm_all = false
+
+--- @param plug_list vim.pack.Plug[]
+--- @return boolean
+local function confirm_install(plug_list)
+  if confirm_all then
+    return true
+  end
+
+  -- Gather pretty aligned list of plugins to install
+  local name_width, name_max_width = {}, 0 --- @type integer[], integer
+  for i, p in ipairs(plug_list) do
+    name_width[i] = api.nvim_strwidth(p.spec.name)
+    name_max_width = math.max(name_max_width, name_width[i])
+  end
+  local lines = {} --- @type string[]
+  for i, p in ipairs(plug_list) do
+    local pad = (' '):rep(name_max_width - name_width[i] + 1)
+    lines[i] = ('%s%sfrom %s'):format(p.spec.name, pad, p.spec.src)
+  end
+
+  local text = table.concat(lines, '\n')
+  local confirm_msg = ('These plugins will be installed:\n\n%s\n'):format(text)
+  local choice = vim.fn.confirm(confirm_msg, 'Proceed? &Yes\n&No\n&Always', 1, 'Question')
+  confirm_all = choice == 3
+  vim.cmd.redraw()
+  return choice ~= 2
+end
+
+--- @param tags string[]
+--- @param version_range vim.VersionRange
+local function get_last_semver_tag(tags, version_range)
+  local last_tag, last_ver_tag --- @type string, vim.Version
+  for _, tag in ipairs(tags) do
+    local ver_tag = parse_semver(tag)
+    if ver_tag then
+      if version_range:has(ver_tag) and (not last_ver_tag or ver_tag > last_ver_tag) then
+        last_tag, last_ver_tag = tag, ver_tag
+      end
+    end
+  end
+  return last_tag
+end
+
+--- @async
+--- @param p vim.pack.Plug
+local function resolve_version(p)
+  local function list_in_line(name, list)
+    return ('\n%s: %s'):format(name, table.concat(list, ', '))
+  end
+
+  -- Resolve only once
+  if p.info.version_str then
+    return
+  end
+  local version = p.spec.version
+
+  -- Default branch
+  if not version then
+    p.info.version_str = git_get_default_branch(p.path)
+    p.info.version_ref = 'origin/' .. p.info.version_str
+    return
+  end
+
+  -- Non-version-range like version: branch, tag, or commit hash
+  local branches = git_get_branches(p.path)
+  local tags = git_get_tags(p.path)
+  if type(version) == 'string' then
+    local is_branch = vim.tbl_contains(branches, version)
+    local is_tag_or_hash = copcall(git_get_hash, version, p.path)
+    if not (is_branch or is_tag_or_hash) then
+      local err = ('`%s` is not a branch/tag/commit. Available:'):format(version)
+        .. list_in_line('Tags', tags)
+        .. list_in_line('Branches', branches)
+      error(err)
+    end
+
+    p.info.version_str = version
+    p.info.version_ref = (is_branch and 'origin/' or '') .. version
+    return
+  end
+  --- @cast version vim.VersionRange
+
+  -- Choose the greatest/last version among all matching semver tags
+  p.info.version_str = get_last_semver_tag(tags, version)
+  if p.info.version_str == nil then
+    local semver_tags = vim.tbl_filter(is_semver, tags)
+    table.sort(semver_tags, vim.version.gt)
+    local err = 'No versions fit constraint. Relax it or switch to branch. Available:'
+      .. list_in_line('Versions', semver_tags)
+      .. list_in_line('Branches', branches)
+    error(err)
+  end
+end
+
+--- @async
+--- @param p vim.pack.Plug
+local function infer_revisions(p)
+  p.info.sha_head = p.info.sha_head or git_get_hash('HEAD', p.path)
+
+  resolve_version(p)
+  local target_ref = p.info.version_ref or p.info.version_str --[[@as string]]
+  p.info.sha_target = p.info.sha_target or git_get_hash(target_ref, p.path)
+end
+
+--- Keep repos in detached HEAD state. Infer commit from resolved version.
+--- No local branches are created, branches from "origin" remote are used directly.
+--- @async
+--- @param p vim.pack.Plug
+--- @param timestamp string
+--- @param skip_stash? boolean
+local function checkout(p, timestamp, skip_stash)
+  infer_revisions(p)
+
+  if not skip_stash then
+    local stash_cmd = { 'stash' }
+    if git_version > parse_semver('2.13.0') then
+      -- Use 'push' to avoid a 'stash -m' bug in versions prior to git v2.26
+      stash_cmd[#stash_cmd + 1] = 'push'
+      stash_cmd[#stash_cmd + 1] = '--message'
+      stash_cmd[#stash_cmd + 1] = ('vim.pack: %s Stash before checkout'):format(timestamp)
+    end
+    stash_cmd[#stash_cmd + 1] = '--quiet'
+    git_cmd(stash_cmd, p.path)
+  end
+
+  git_cmd({ 'checkout', '--quiet', p.info.sha_target }, p.path)
+
+  local submodule_cmd = { 'submodule', 'update', '--init', '--recursive' }
+  if git_version >= parse_semver('2.36.0') then
+    submodule_cmd[#submodule_cmd + 1] = '--filter=blob:none'
+  end
+  git_cmd(submodule_cmd, p.path)
+
+  plugin_lock.plugins[p.spec.name].rev = p.info.sha_target
+
+  -- (Re)Generate help tags according to the current help files.
+  -- Also use `pcall()` because `:helptags` errors if there is no 'doc/'
+  -- directory or if it is empty.
+  local doc_dir = vim.fs.joinpath(p.path, 'doc')
+  vim.fn.delete(vim.fs.joinpath(doc_dir, 'tags'))
+  copcall(vim.cmd.helptags, { doc_dir, magic = { file = false } })
+end
+
+--- @param plug_list vim.pack.Plug[]
+local function install_list(plug_list, confirm)
+  local timestamp = get_timestamp()
+  --- @async
+  --- @param p vim.pack.Plug
+  local function do_install(p)
+    git_clone(p.spec.src, p.path)
+
+    plugin_lock.plugins[p.spec.name].src = p.spec.src
+
+    -- Prefer revision from the lockfile instead of using `version`
+    p.info.sha_target = (plugin_lock.plugins[p.spec.name] or {}).rev
+
+    checkout(p, timestamp, true)
+    p.info.installed = true
+  end
+
+  -- Install possibly after user confirmation
+  if not confirm or confirm_install(plug_list) then
+    trigger_events(plug_list, 'PackChangedPre', 'install')
+    run_list(plug_list, do_install, 'Installing plugins')
+    local installed = vim.tbl_filter(function(p) --- @param p vim.pack.Plug
+      return p.info.installed
+    end, plug_list)
+    trigger_events(installed, 'PackChanged', 'install')
+  end
+
+  -- Ensure that not fully installed plugins are absent on disk and in lockfile
+  for _, p in ipairs(plug_list) do
+    if not (p.info.installed and uv.fs_stat(p.path) ~= nil) then
+      plugin_lock.plugins[p.spec.name] = nil
+      vim.fs.rm(p.path, { recursive = true, force = true })
+    end
+  end
+end
+
+--- @async
+--- @param p vim.pack.Plug
+local function infer_update_details(p)
+  p.info.update_details = ''
+  infer_revisions(p)
+  local sha_head = assert(p.info.sha_head)
+  local sha_target = assert(p.info.sha_target)
+
+  -- Try showing log of changes (if any)
+  if sha_head ~= sha_target then
+    local range = sha_head .. '...' .. sha_target
+    local format = '--pretty=format:%m %h │ %s%d'
+    -- Show only tags near commits (not `origin/main`, etc.)
+    local decorate = '--decorate-refs=refs/tags'
+    -- `--topo-order` makes showing divergent branches nicer, but by itself
+    -- doesn't ensure that reverted ("left", shown with `<`) and added
+    -- ("right", shown with `>`) commits have fixed order.
+    local l = git_cmd({ 'log', format, '--topo-order', '--left-only', decorate, range }, p.path)
+    local r = git_cmd({ 'log', format, '--topo-order', '--right-only', decorate, range }, p.path)
+    p.info.update_details = l == '' and r or (r == '' and l or (l .. '\n' .. r))
+    return
+  end
+
+  -- Suggest newer semver tags (i.e. greater than greatest past semver tag)
+  local all_semver_tags = vim.tbl_filter(is_semver, git_get_tags(p.path))
+  if #all_semver_tags == 0 then
+    return
+  end
+
+  local older_tags = ''
+  if git_version >= parse_semver('2.13.0') then
+    older_tags = git_cmd({ 'tag', '--list', '--no-contains', sha_head }, p.path)
+  end
+  local cur_tags = git_cmd({ 'tag', '--list', '--points-at', sha_head }, p.path)
+  local past_tags = vim.split(older_tags, '\n')
+  vim.list_extend(past_tags, vim.split(cur_tags, '\n'))
+
+  local any_version = vim.version.range('*') --[[@as vim.VersionRange]]
+  local last_version = get_last_semver_tag(past_tags, any_version)
+
+  local newer_semver_tags = vim.tbl_filter(function(x) --- @param x string
+    return vim.version.gt(x, last_version)
+  end, all_semver_tags)
+
+  table.sort(newer_semver_tags, vim.version.gt)
+  p.info.update_details = table.concat(newer_semver_tags, '\n')
+end
+
+--- @param plug vim.pack.Plug
+--- @param load boolean|fun(plug_data: {spec: vim.pack.Spec, path: string})
+local function pack_add(plug, load)
+  -- Add plugin only once, i.e. no overriding of spec. This allows users to put
+  -- plugin first to fully control its spec.
+  if active_plugins[plug.path] then
+    return
+  end
+
+  n_active_plugins = n_active_plugins + 1
+  active_plugins[plug.path] = { plug = plug, id = n_active_plugins }
+
+  if vim.is_callable(load) then
+    load({ spec = vim.deepcopy(plug.spec), path = plug.path })
+    return
+  end
+
+  -- NOTE: The `:packadd` specifically seems to not handle spaces in dir name
+  vim.cmd.packadd({ vim.fn.escape(plug.spec.name, ' '), bang = not load, magic = { file = false } })
+
+  -- The `:packadd` only sources plain 'plugin/' files. Execute 'after/' scripts
+  -- if not during startup (when they will be sourced later, even if
+  -- `vim.pack.add` is inside user's 'plugin/')
+  -- See https://github.com/vim/vim/issues/15584
+  -- Deliberately do so after executing all currently known 'plugin/' files.
+  if vim.v.vim_did_enter == 1 and load then
+    local after_paths = vim.fn.glob(plug.path .. '/after/plugin/**/*.{vim,lua}', false, true)
+    --- @param path string
+    vim.tbl_map(function(path)
+      vim.cmd.source({ path, magic = { file = false } })
+    end, after_paths)
+  end
+end
+
+local function lock_write()
+  -- Serialize `version`
+  local lock = vim.deepcopy(plugin_lock)
+  for _, l_data in pairs(lock.plugins) do
+    local version = l_data.version
+    if version then
+      l_data.version = type(version) == 'string' and ("'%s'"):format(version) or tostring(version)
+    end
+  end
+
+  vim.fn.mkdir(vim.fs.dirname(M._plugin_lock_path), 'p')
+  local fd = assert(uv.fs_open(M._plugin_lock_path, 'w',
+
+[… truncated 24458 chars …]

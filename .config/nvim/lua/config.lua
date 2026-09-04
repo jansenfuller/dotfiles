@@ -22,7 +22,7 @@ vim.opt.fileformat = "unix" -- default to unix line endings
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "line"
 
--- Highlight overrides (commented out — now using kanagawa.nvim)
+-- Highlight overrides (commented out — now using nordic.nvim)
 -- vim.api.nvim_create_autocmd("ColorScheme", {
 -- 	callback = function()
 -- 		vim.api.nvim_set_hl(0, "CursorLine", { bg = "#282C33" })
@@ -68,6 +68,10 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 vim.opt.signcolumn = "yes" -- dedicated sign column
 vim.opt.sidescrolloff = 8
 
+-- Use snacks.explorer as the file browser (disable netrw)
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Search
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
@@ -88,6 +92,12 @@ vim.opt.updatetime = 750
 vim.opt.timeoutlen = 300 -- leader completion timeout
 vim.opt.ttimeoutlen = 10 -- fast key code processing
 vim.opt.scrolloff = 10 -- keep cursor 10 lines from top/bottom
+
+-- Persistent undo (survives restarts; pairs with the undo-history picker)
+vim.opt.undofile = true
+local undo_dir = vim.fn.stdpath("data") .. "/undo"
+vim.fn.mkdir(undo_dir, "p")
+vim.opt.undodir = undo_dir
 
 -- Diagnostics
 vim.diagnostic.config({
@@ -118,6 +128,20 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 	end,
 })
 
+-- LSP hover: swallow empty results so the command line doesn't spam
+-- "No information available" on every word without docs (CursorHold hover
+-- and K both go through this handler)
+local default_hover = vim.lsp.handlers["textDocument/hover"]
+vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
+	if not result or not result.contents then
+		return
+	end
+	if type(result.contents) == "table" and vim.tbl_isempty(result.contents) then
+		return
+	end
+	return default_hover(err, result, ctx, config)
+end
+
 -- Mouse hover: show LSP docs after 750ms idle on a word
 vim.api.nvim_create_autocmd("CursorHold", {
 	callback = function()
@@ -145,22 +169,6 @@ vim.keymap.set("n", "<leader>fd", function()
 	Snacks.picker.diagnostics()
 end, { desc = "Diagnostics" })
 
-vim.keymap.set("n", "<leader>fc", function()
-	local allowed = { "alduin", "flume", "south", "nordic" }
-	local installed = vim.fn.getcompletion("", "color")
-	local filtered = vim.tbl_filter(function(name)
-		return vim.tbl_contains(allowed, name)
-	end, installed)
-	vim.ui.select(filtered, {
-		prompt = "  Pick a colorscheme",
-		format_item = function(item)
-			return item
-		end,
-	}, function(choice)
-		if choice then vim.cmd.colorscheme(choice) end
-	end)
-end, { desc = "Colorschemes" })
-
 vim.keymap.set("n", "<leader>fz", function()
 	Snacks.picker.recent()
 end, { desc = "Recent files" })
@@ -168,12 +176,18 @@ vim.keymap.set("n", "<leader>fp", function()
 	local old_cwd = vim.fn.getcwd()
 	Snacks.picker.projects({ dev = { "~/dev" } }, function(project)
 		if project and project.dir ~= old_cwd then
-			-- Close all buffers when switching to a different project
-			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-				if vim.bo[buf].buflisted then
-					pcall(vim.api.nvim_buf_delete, buf, { force = false })
+			-- Closing all buffers is destructive — ask first
+			vim.ui.select({ "Yes", "No" }, {
+				prompt = "Close all open buffers and switch to " .. project.dir .. "?",
+			}, function(choice)
+				if choice == "Yes" then
+					for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+						if vim.bo[buf].buflisted then
+							pcall(vim.api.nvim_buf_delete, buf, { force = false })
+						end
+					end
 				end
-			end
+			end)
 		end
 	end)
 end, { desc = "Switch project" })
@@ -289,7 +303,7 @@ local function toggle_fold_block()
 		end
 	end
 end
-vim.keymap.set("n", "<leader>z", "za", { desc = "Toggle fold" })
+vim.keymap.set("n", "<leader>zz", "za", { desc = "Toggle fold" })
 vim.keymap.set("n", "<leader>zf", toggle_fold_block, { desc = "Fold/unfold current block" })
 vim.keymap.set("n", "<leader>zo", "zR", { desc = "Open all folds" })
 vim.keymap.set("n", "<leader>zc", "zM", { desc = "Close all folds" })
@@ -302,9 +316,6 @@ vim.keymap.set("n", "<leader>dt", function()
 	local enabled = vim.diagnostic.is_enabled({ bufnr = bufnr })
 	vim.diagnostic.enable(not enabled, { bufnr = bufnr })
 end, { desc = "Toggle diagnostics" })
-
--- Clear search highlight (under <leader>h group, double-tap)
-vim.keymap.set("n", "<leader>hh", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -- Quickfix navigation
 vim.keymap.set("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix" })
