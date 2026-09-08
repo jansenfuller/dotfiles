@@ -126,24 +126,6 @@ lazyload.on_vim_enter(function()
 		},
 	})
 
-	-- mini.map — code minimap with treesitter highlighting
-	local map = require("mini.map")
-	map.setup({
-		integrations = {
-			map.gen_integration.builtin_search(),
-			map.gen_integration.diagnostic({
-				error = "DiagnosticError",
-				warn  = "DiagnosticWarn",
-				info  = "DiagnosticInfo",
-				hint  = "DiagnosticHint",
-			}),
-		},
-	})
-	map.open()
-	vim.keymap.set("n", "<leader>mm", function()
-		map.toggle()
-	end, { desc = "Toggle minimap" })
-
 	-- 14. tobira.nvim — vim command learning from usage habits
 	lazyload.pack_load({
 		{ src = "https://github.com/kamegoro/tobira.nvim" },
